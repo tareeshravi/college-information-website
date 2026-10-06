@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: tnea-college-explorer
+    env: python
+    buildCommand: ""
+    startCommand: "python server.py $PORT"
+    plan: free
+    disk:
+      name: tnea-data
+      mountPath: /app/data
+      sizeGB: 1

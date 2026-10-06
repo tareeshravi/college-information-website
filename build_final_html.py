@@ -1,0 +1,4246 @@
+import json
+import os
+
+base_dir = r"C:\Users\TAREESHRAVI\.gemini\antigravity\scratch\tnea-college-explorer"
+data_file = os.path.join(base_dir, "data", "colleges.json")
+target_file = os.path.join(base_dir, "TNEA_College_Explorer_DEBUGGED_RESPONSIVE_FINAL.html")
+
+with open(data_file, "r", encoding="utf-8") as f:
+    colleges_list = json.load(f)
+
+json_data_str = json.dumps(colleges_list, indent=2, ensure_ascii=False)
+
+html_template = f'''<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- Viewport configured for full mobile responsiveness and accessibility -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TNEA College Explorer – Smart College Information, Community Cutoffs, Fee Estimator & Counseling Portal">
+    <meta name="theme-color" content="#1e1b4b">
+    
+    <!-- Anti-caching headers for multi-device sync -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
+    <title>TNEA College Explorer – Smart College Information Portal</title>
+    
+    <!-- Google Fonts: Plus Jakarta Sans with font-display swap -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome 6 Icons with Graceful Fallback -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" id="faStylesheet">
+
+    <style>
+        /* ==========================================================================
+           CSS DESIGN SYSTEM & THEME TOKENS
+           ========================================================================== */
+        :root {{
+            --primary: #4f46e5;
+            --primary-light: #6366f1;
+            --primary-dark: #3730a3;
+            --primary-glow: rgba(99, 102, 241, 0.35);
+            --secondary: #0ea5e9;
+            --secondary-dark: #0284c7;
+            --accent: #f59e0b;
+            --accent-hover: #d97706;
+            --success: #10b981;
+            --success-dark: #059669;
+            --danger: #ef4444;
+            --danger-dark: #dc2626;
+            --warning: #f59e0b;
+            
+            --bg-gradient-from: #090d16;
+            --bg-gradient-via: #111827;
+            --bg-gradient-to: #1e1b4b;
+            
+            --card-bg: #ffffff;
+            --card-subtle: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --text-light: #94a3b8;
+            --border-color: #e2e8f0;
+            --border-focus: #6366f1;
+            
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --radius-full: 9999px;
+            
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 6px 16px -2px rgba(15, 23, 42, 0.08);
+            --shadow-lg: 0 16px 32px -4px rgba(15, 23, 42, 0.12);
+            --shadow-xl: 0 24px 48px -8px rgba(0, 0, 0, 0.25);
+            
+            --min-touch-target: 44px;
+        }}
+
+        /* Reset & Base Typography */
+        *, *::before, *::after {{
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }}
+
+        html {{
+            scroll-behavior: smooth;
+            font-size: 16px;
+            -webkit-text-size-adjust: 100%;
+        }}
+
+        body {{
+            background: linear-gradient(145deg, var(--bg-gradient-from) 0%, var(--bg-gradient-via) 50%, var(--bg-gradient-to) 100%);
+            min-height: 100vh;
+            color: var(--text-main);
+            overflow-x: hidden;
+            width: 100%;
+            position: relative;
+            line-height: 1.5;
+        }}
+
+        /* Body scroll lock when modal open */
+        body.modal-open {{
+            overflow: hidden !important;
+            padding-right: var(--scrollbar-width, 0px);
+        }}
+
+        /* Accessible Focus Outlines */
+        :focus-visible {{
+            outline: 3px solid var(--primary-light) !important;
+            outline-offset: 2px !important;
+        }}
+
+        /* Ambient Glow Highlights */
+        body::before {{
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 20%;
+            width: clamp(300px, 50vw, 600px);
+            height: clamp(300px, 50vw, 600px);
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(14, 165, 233, 0) 70%);
+            z-index: 0;
+            pointer-events: none;
+        }}
+
+        body::after {{
+            content: '';
+            position: fixed;
+            bottom: 10%;
+            right: 10%;
+            width: clamp(250px, 40vw, 500px);
+            height: clamp(250px, 40vw, 500px);
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.12) 0%, rgba(236, 72, 153, 0) 70%);
+            z-index: 0;
+            pointer-events: none;
+        }}
+
+        .main-wrapper {{
+            position: relative;
+            z-index: 1;
+            max-width: 1360px;
+            margin: 0 auto;
+            padding: 0 16px 60px 16px;
+            width: 100%;
+        }}
+
+        /* ==========================================================================
+           1. RESPONSIVE NAVIGATION BAR & STATUS INDICATOR
+           ========================================================================== */
+        .navbar-outer {{
+            position: sticky;
+            top: 12px;
+            z-index: 1000;
+            margin-bottom: 24px;
+            padding: 0 4px;
+            width: 100%;
+        }}
+
+        .navbar {{
+            background: rgba(15, 23, 42, 0.90);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: var(--radius-xl);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+            transition: all 0.3s ease;
+            gap: 12px;
+        }}
+
+        .brand-logo {{
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #ffffff;
+            min-height: var(--min-touch-target);
+        }}
+
+        .brand-icon-box {{
+            width: 42px;
+            height: 42px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+            flex-shrink: 0;
+        }}
+
+        .brand-text h1 {{
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+            background: linear-gradient(90deg, #ffffff, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+            white-space: nowrap;
+        }}
+
+        .brand-text span {{
+            font-size: 11px;
+            font-weight: 600;
+            color: #38bdf8;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            display: block;
+        }}
+
+        .nav-center-actions {{
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }}
+
+        .sync-status-badge {{
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            color: #34d399;
+            padding: 6px 12px;
+            border-radius: var(--radius-full);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+            min-height: 36px;
+            transition: all 0.2s;
+        }}
+
+        .sync-status-badge:hover {{
+            background: rgba(16, 185, 129, 0.25);
+        }}
+
+        .sync-status-badge.syncing {{
+            background: rgba(245, 158, 11, 0.15);
+            border-color: rgba(245, 158, 11, 0.35);
+            color: #fbbf24;
+        }}
+
+        .sync-dot {{
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulseDot 2s infinite;
+        }}
+
+        .sync-status-badge.syncing .sync-dot {{
+            background: #f59e0b;
+        }}
+
+        @keyframes pulseDot {{
+            0%, 100% {{ opacity: 1; transform: scale(1); }}
+            50% {{ opacity: 0.4; transform: scale(0.85); }}
+        }}
+
+        .nav-links-desktop {{
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            list-style: none;
+        }}
+
+        .nav-link {{
+            text-decoration: none;
+            color: #cbd5e1;
+            font-weight: 600;
+            font-size: 13.5px;
+            padding: 8px 14px;
+            border-radius: var(--radius-full);
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-height: 38px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+        }}
+
+        .nav-link:hover, .nav-link.active {{
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.12);
+        }}
+
+        .nav-link-badge {{
+            background: #ef4444;
+            color: white;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: var(--radius-full);
+            margin-left: 2px;
+        }}
+
+        .nav-cta-btn {{
+            background: linear-gradient(135deg, var(--primary-light), var(--primary));
+            color: #ffffff !important;
+            font-weight: 700;
+            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+        }}
+
+        .nav-cta-btn:hover {{
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.5);
+            background: linear-gradient(135deg, #7c3aed, var(--primary-light));
+        }}
+
+        .hamburger-btn {{
+            display: none;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            color: #ffffff;
+            width: var(--min-touch-target);
+            height: var(--min-touch-target);
+            border-radius: var(--radius-md);
+            font-size: 18px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s ease;
+            flex-shrink: 0;
+        }}
+
+        .hamburger-btn:hover {{
+            background: rgba(255, 255, 255, 0.18);
+        }}
+
+        /* Mobile Dropdown Drawer */
+        .mobile-menu-drawer {{
+            display: none;
+            background: rgba(15, 23, 42, 0.98);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: var(--radius-lg);
+            margin-top: 10px;
+            padding: 16px;
+            box-shadow: var(--shadow-xl);
+            animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }}
+
+        .mobile-menu-drawer.open {{
+            display: block;
+        }}
+
+        .mobile-nav-list {{
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }}
+
+        .mobile-nav-link {{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #e2e8f0;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            transition: all 0.2s ease;
+            min-height: var(--min-touch-target);
+            background: transparent;
+            border: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+        }}
+
+        .mobile-nav-link-content {{
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }}
+
+        .mobile-nav-link:hover, .mobile-nav-link:active {{
+            background: rgba(99, 102, 241, 0.2);
+            color: #ffffff;
+        }}
+
+        @keyframes slideDown {{
+            from {{ opacity: 0; transform: translateY(-10px); }}
+            to {{ opacity: 1; transform: translateY(0); }}
+        }}
+
+        /* ==========================================================================
+           2. HERO SECTION & LIVE DASHBOARD STATS
+           ========================================================================== */
+        .hero-section {{
+            background: linear-gradient(135deg, rgba(30, 27, 75, 0.90) 0%, rgba(15, 23, 42, 0.96) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: var(--radius-xl);
+            padding: clamp(24px, 5vw, 44px) clamp(16px, 4vw, 36px);
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }}
+
+        .hero-section::before {{
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(14, 165, 233, 0.20) 0%, transparent 70%);
+            pointer-events: none;
+        }}
+
+        .hero-content {{
+            text-align: center;
+            max-width: 860px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }}
+
+        .hero-tag {{
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(99, 102, 241, 0.20);
+            border: 1px solid rgba(99, 102, 241, 0.40);
+            color: #a5b4fc;
+            padding: 6px 16px;
+            border-radius: var(--radius-full);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+        }}
+
+        .hero-title {{
+            font-size: clamp(24px, 4.5vw, 42px);
+            font-weight: 800;
+            letter-spacing: -0.8px;
+            line-height: 1.2;
+            color: #ffffff;
+            margin-bottom: 14px;
+        }}
+
+        .hero-title .gradient-text {{
+            background: linear-gradient(135deg, #60a5fa 0%, #a855f7 50%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }}
+
+        .hero-subtitle {{
+            font-size: clamp(14px, 2vw, 17px);
+            color: #cbd5e1;
+            line-height: 1.6;
+            margin-bottom: 24px;
+            font-weight: 400;
+        }}
+
+        /* Live Statistics Dashboard Cards */
+        .stats-dashboard {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-top: 28px;
+            text-align: left;
+            width: 100%;
+        }}
+
+        .dashboard-stat-card {{
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.10);
+            border-radius: var(--radius-lg);
+            padding: 16px 18px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.3s ease;
+        }}
+
+        .dashboard-stat-card:hover {{
+            background: rgba(255, 255, 255, 0.10);
+            transform: translateY(-3px);
+            border-color: rgba(99, 102, 241, 0.5);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.35);
+        }}
+
+        .dash-stat-icon {{
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }}
+
+        .icon-blue {{ background: rgba(59, 130, 246, 0.22); color: #60a5fa; }}
+        .icon-purple {{ background: rgba(168, 85, 247, 0.22); color: #c084fc; }}
+        .icon-emerald {{ background: rgba(16, 185, 129, 0.22); color: #34d399; }}
+        .icon-amber {{ background: rgba(245, 158, 11, 0.22); color: #fbbf24; }}
+
+        .dash-stat-info h4 {{
+            font-size: clamp(20px, 2.5vw, 24px);
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+            line-height: 1.1;
+        }}
+
+        .dash-stat-info p {{
+            font-size: 12px;
+            font-weight: 600;
+            color: #94a3b8;
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }}
+
+        /* ==========================================================================
+           3. SMART CUTOFF ELIGIBILITY CALCULATOR WIDGET
+           ========================================================================== */
+        .calculator-banner {{
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+            border: 1px solid rgba(165, 180, 252, 0.25);
+            border-radius: var(--radius-xl);
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-lg);
+            color: #ffffff;
+        }}
+
+        .calc-header {{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }}
+
+        .calc-header h3 {{
+            font-size: 16px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #a5b4fc;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }}
+
+        .calc-controls-grid {{
+            display: grid;
+            grid-template-columns: 1.5fr 1fr auto auto;
+            gap: 12px;
+            align-items: center;
+        }}
+
+        .calc-input-box {{
+            padding: 12px 16px;
+            background: rgba(15, 23, 42, 0.85);
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-md);
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 700;
+            outline: none;
+            width: 100%;
+            min-height: var(--min-touch-target);
+        }}
+
+        .calc-input-box:focus {{
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+        }}
+
+        .calc-submit-btn {{
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            min-height: var(--min-touch-target);
+            transition: all 0.2s;
+        }}
+
+        .calc-submit-btn:hover {{
+            background: #0284c7;
+            transform: translateY(-1px);
+        }}
+
+        .calc-clear-btn {{
+            background: rgba(255, 255, 255, 0.10);
+            color: #cbd5e1;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            min-height: var(--min-touch-target);
+            transition: all 0.2s;
+        }}
+
+        .calc-clear-btn:hover {{
+            background: rgba(255, 255, 255, 0.20);
+            color: white;
+        }}
+
+        /* ==========================================================================
+           4. SEARCH CONTROLS, FILTERS & SORT SYSTEM
+           ========================================================================== */
+        .controls-wrapper {{
+            background: var(--card-bg);
+            border-radius: var(--radius-xl);
+            padding: clamp(16px, 3vw, 24px);
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+            width: 100%;
+        }}
+
+        .controls-top-row {{
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto;
+            gap: 12px;
+            align-items: center;
+        }}
+
+        .search-box-container {{
+            position: relative;
+            width: 100%;
+        }}
+
+        .search-box-container i.search-icon {{
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 16px;
+            pointer-events: none;
+        }}
+
+        .search-input {{
+            width: 100%;
+            padding: 12px 42px 12px 44px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 14.5px;
+            font-weight: 500;
+            color: var(--text-main);
+            outline: none;
+            transition: all 0.2s ease;
+            background: #f8fafc;
+            min-height: var(--min-touch-target);
+        }}
+
+        .search-input:focus {{
+            background: #ffffff;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+        }}
+
+        .search-clear-btn {{
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #e2e8f0;
+            border: none;
+            color: #64748b;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            cursor: pointer;
+        }}
+
+        .search-clear-btn.visible {{
+            display: flex;
+        }}
+
+        .filter-group {{
+            position: relative;
+            width: 100%;
+        }}
+
+        .filter-select {{
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--text-main);
+            background: #f8fafc;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-height: var(--min-touch-target);
+        }}
+
+        .filter-select:focus {{
+            border-color: var(--primary);
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+        }}
+
+        .reset-filter-btn {{
+            background: #f1f5f9;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            padding: 12px 18px;
+            border-radius: var(--radius-md);
+            font-size: 13.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            min-height: var(--min-touch-target);
+        }}
+
+        .reset-filter-btn:hover {{
+            background: #fee2e2;
+            color: var(--danger);
+            border-color: #fca5a5;
+        }}
+
+        /* Quick Branch Selector Chips */
+        .dept-chips-row {{
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border-color);
+            overflow-x: auto;
+            padding-bottom: 4px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+        }}
+
+        .chips-label {{
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }}
+
+        .dept-chip {{
+            background: #f1f5f9;
+            border: 1px solid var(--border-color);
+            color: #475569;
+            font-size: 12.5px;
+            font-weight: 700;
+            padding: 7px 14px;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+            min-height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }}
+
+        .dept-chip:hover {{
+            background: #e2e8f0;
+            color: var(--text-main);
+        }}
+
+        .dept-chip.active {{
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.35);
+        }}
+
+        /* Results Stats Bar */
+        .results-summary-bar {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 0 4px;
+            color: #cbd5e1;
+            font-size: 14px;
+            font-weight: 600;
+            flex-wrap: wrap;
+            gap: 10px;
+        }}
+
+        .results-count-badge {{
+            background: rgba(255, 255, 255, 0.12);
+            color: #38bdf8;
+            padding: 6px 14px;
+            border-radius: var(--radius-full);
+            font-size: 13px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }}
+
+        /* ==========================================================================
+           5. COLLEGE CARDS DESIGN
+           ========================================================================== */
+        .college-list-grid {{
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+            width: 100%;
+        }}
+
+        .college-card {{
+            background: var(--card-bg);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            position: relative;
+            width: 100%;
+        }}
+
+        .college-card:hover {{
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+            border-color: #cbd5e1;
+        }}
+
+        /* Card Hero Header */
+        .card-hero {{
+            position: relative;
+            min-height: 240px;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px 24px;
+            color: #ffffff;
+            transition: background-image 0.4s ease;
+            background-color: #1e293b;
+        }}
+
+        .card-hero-overlay {{
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.40) 0%, rgba(15, 23, 42, 0.92) 100%);
+            z-index: 1;
+        }}
+
+        .card-top-actions {{
+            position: relative;
+            z-index: 2;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }}
+
+        .badge-pill-group {{
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }}
+
+        .tnea-badge {{
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #ffffff;
+            padding: 6px 14px;
+            border-radius: var(--radius-full);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            min-height: 32px;
+        }}
+
+        .category-badge {{
+            background: rgba(15, 23, 42, 0.80);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #f8fafc;
+            padding: 6px 12px;
+            border-radius: var(--radius-full);
+            font-size: 11.5px;
+            font-weight: 700;
+            min-height: 32px;
+            display: inline-flex;
+            align-items: center;
+        }}
+
+        .card-top-right-tools {{
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }}
+
+        .favorite-toggle-btn {{
+            background: rgba(255, 255, 255, 0.90);
+            border: none;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }}
+
+        .favorite-toggle-btn.favorited {{
+            color: #f59e0b;
+            background: #fffbeb;
+        }}
+
+        .favorite-toggle-btn:hover {{
+            transform: scale(1.1);
+        }}
+
+        .change-photo-btn-label {{
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(8px);
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: var(--radius-full);
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+            min-height: var(--min-touch-target);
+        }}
+
+        .change-photo-btn-label:hover {{
+            background: #ffffff;
+            transform: scale(1.03);
+            color: var(--primary);
+        }}
+
+        .file-input-hidden {{
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }}
+
+        .card-hero-details {{
+            position: relative;
+            z-index: 2;
+            margin-top: 16px;
+        }}
+
+        .college-heading-title {{
+            font-size: clamp(18px, 3vw, 24px);
+            font-weight: 800;
+            line-height: 1.3;
+            color: #ffffff;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }}
+
+        .college-location-text {{
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #38bdf8;
+            text-decoration: none;
+        }}
+
+        .college-location-text:hover {{
+            text-decoration: underline;
+        }}
+
+        /* Card Body Content */
+        .card-body-content {{
+            padding: clamp(16px, 3vw, 24px);
+        }}
+
+        /* Key Metrics Banner */
+        .metrics-row {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }}
+
+        .metric-box {{
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }}
+
+        .metric-icon {{
+            width: 42px;
+            height: 42px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            flex-shrink: 0;
+        }}
+
+        .metric-seats {{ background: #dbeafe; color: #1d4ed8; }}
+        .metric-pkg {{ background: #dcfce7; color: #15803d; }}
+        .metric-actions-cell {{
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            grid-column: span 1;
+        }}
+
+        .metric-info label {{
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            display: block;
+        }}
+
+        .metric-info span {{
+            font-size: 15.5px;
+            font-weight: 800;
+            color: var(--text-main);
+        }}
+
+        .view-details-inline-btn {{
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 11px 16px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+            transition: all 0.2s ease;
+            min-height: var(--min-touch-target);
+        }}
+
+        .view-details-inline-btn:hover {{
+            opacity: 0.95;
+            transform: translateY(-1px);
+        }}
+
+        .compare-toggle-btn {{
+            background: #f1f5f9;
+            border: 1.5px solid var(--border-color);
+            color: #334155;
+            padding: 11px 14px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            min-height: var(--min-touch-target);
+            white-space: nowrap;
+            transition: all 0.2s;
+        }}
+
+        .compare-toggle-btn.active {{
+            background: #ede9fe;
+            border-color: #8b5cf6;
+            color: #6d28d9;
+        }}
+
+        /* ==========================================================================
+           6. FEES STRUCTURE & ESTIMATOR
+           ========================================================================== */
+        .fees-section-box {{
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border: 1px solid #fde68a;
+            border-radius: var(--radius-lg);
+            padding: 18px 20px;
+            margin-bottom: 24px;
+        }}
+
+        .section-subhead {{
+            font-size: 14.5px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }}
+
+        .subhead-fee {{ color: #92400e; }}
+        .subhead-events {{ color: #0369a1; }}
+        .subhead-cutoffs {{ color: #1e293b; }}
+
+        .fee-inputs-grid {{
+            display: grid;
+            grid-template-columns: repeat(3, 1fr) 1.2fr;
+            gap: 12px;
+            align-items: center;
+        }}
+
+        .fee-input-field {{
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }}
+
+        .fee-input-field label {{
+            font-size: 11px;
+            font-weight: 800;
+            color: #78350f;
+            text-transform: uppercase;
+        }}
+
+        .fee-input-box {{
+            background: #ffffff;
+            border: 1.5px solid #fcd34d;
+            border-radius: var(--radius-sm);
+            padding: 10px 12px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #78350f;
+            outline: none;
+            transition: all 0.2s ease;
+            width: 100%;
+            min-height: var(--min-touch-target);
+        }}
+
+        .fee-input-box:focus {{
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+        }}
+
+        .total-expense-card {{
+            background: #ffffff;
+            border: 2px solid #f59e0b;
+            border-radius: var(--radius-md);
+            padding: 10px 14px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.15);
+        }}
+
+        .total-expense-card label {{
+            font-size: 11px;
+            font-weight: 800;
+            color: #b45309;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 2px;
+        }}
+
+        .total-expense-card .total-value {{
+            font-size: 19px;
+            font-weight: 800;
+            color: #b45309;
+            letter-spacing: -0.5px;
+        }}
+
+        /* ==========================================================================
+           7. COLLEGE EVENTS & EVENT PHOTOS SECTION
+           ========================================================================== */
+        .events-section-box {{
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid #bae6fd;
+            border-radius: var(--radius-lg);
+            padding: 18px 20px;
+            margin-bottom: 24px;
+        }}
+
+        .events-header-bar {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }}
+
+        .add-event-action-btn {{
+            background: var(--secondary-dark);
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(2, 132, 199, 0.3);
+            min-height: var(--min-touch-target);
+        }}
+
+        .add-event-action-btn:hover {{
+            background: #0369a1;
+            transform: translateY(-1px);
+        }}
+
+        /* Inline Event Add/Edit Form */
+        .event-form-panel {{
+            display: none;
+            background: #ffffff;
+            border: 1.5px solid #7dd3fc;
+            border-radius: var(--radius-md);
+            padding: 18px;
+            margin-bottom: 18px;
+            box-shadow: var(--shadow-sm);
+            animation: fadeIn 0.25s ease;
+        }}
+
+        .event-form-panel.active {{
+            display: block;
+        }}
+
+        .event-form-grid {{
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }}
+
+        .event-form-full {{
+            grid-column: span 2;
+        }}
+
+        .form-label {{
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: #0369a1;
+            margin-bottom: 4px;
+        }}
+
+        .form-ctrl {{
+            width: 100%;
+            padding: 10px 12px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: var(--radius-sm);
+            font-size: 13.5px;
+            outline: none;
+            transition: border-color 0.2s;
+            min-height: var(--min-touch-target);
+        }}
+
+        .form-ctrl:focus {{
+            border-color: var(--secondary-dark);
+        }}
+
+        .form-btns-row {{
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 12px;
+        }}
+
+        .btn-secondary {{
+            background: #94a3b8;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            min-height: var(--min-touch-target);
+        }}
+
+        .btn-secondary:hover {{ background: #64748b; }}
+
+        .btn-success {{
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            min-height: var(--min-touch-target);
+        }}
+
+        .btn-success:hover {{ background: #059669; }}
+
+        /* Responsive Event Cards Gallery */
+        .events-cards-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+        }}
+
+        .event-item-card {{
+            background: #ffffff;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            border: 1px solid #bae6fd;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.2s ease;
+            position: relative;
+        }}
+
+        .event-item-card:hover {{
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }}
+
+        .event-poster-container {{
+            position: relative;
+            height: 130px;
+            background: #f1f5f9;
+            overflow: hidden;
+            cursor: pointer;
+        }}
+
+        .event-poster-img {{
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }}
+
+        .event-poster-container:hover .event-poster-img {{
+            transform: scale(1.05);
+        }}
+
+        .event-poster-placeholder {{
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-size: 12px;
+            font-weight: 600;
+            background: #e2e8f0;
+            gap: 6px;
+        }}
+
+        .zoom-hint-overlay {{
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }}
+
+        .event-poster-container:hover .zoom-hint-overlay,
+        .event-poster-container:focus .zoom-hint-overlay {{
+            opacity: 1;
+        }}
+
+        .event-content-body {{
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            justify-content: space-between;
+        }}
+
+        .event-title-text {{
+            font-size: 14px;
+            font-weight: 800;
+            color: #0c4a6e;
+            margin-bottom: 4px;
+            line-height: 1.3;
+        }}
+
+        .event-meta-info {{
+            font-size: 11.5px;
+            font-weight: 600;
+            color: #0284c7;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }}
+
+        .event-desc-text {{
+            font-size: 12px;
+            color: #475569;
+            line-height: 1.4;
+            margin-bottom: 10px;
+        }}
+
+        .event-actions-bar {{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 8px;
+            border-top: 1px solid #f1f5f9;
+        }}
+
+        .event-photo-upload-label {{
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #0284c7;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            transition: all 0.2s ease;
+            min-height: 36px;
+        }}
+
+        .event-photo-upload-label:hover {{
+            background: #e0f2fe;
+            color: #0369a1;
+            border-color: #7dd3fc;
+            transform: scale(1.03);
+        }}
+
+        .event-action-icons {{
+            display: flex;
+            gap: 4px;
+        }}
+
+        .icon-btn-action {{
+            border: none;
+            background: transparent;
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }}
+
+        .btn-edit-ev {{ color: var(--primary); }}
+        .btn-edit-ev:hover {{ background: #ede9fe; }}
+
+        .btn-del-ev {{ color: var(--danger); }}
+        .btn-del-ev:hover {{ background: #fee2e2; }}
+
+        /* ==========================================================================
+           8. CUTOFF TABLE SECTION
+           ========================================================================== */
+        .cutoffs-container-box {{
+            background: #ffffff;
+            border-radius: var(--radius-lg);
+        }}
+
+        .table-scroll-container {{
+            overflow-x: auto;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            background: #ffffff;
+            -webkit-overflow-scrolling: touch;
+            width: 100%;
+        }}
+
+        .responsive-cutoff-table {{
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+            font-size: 13.5px;
+            min-width: 480px;
+        }}
+
+        .responsive-cutoff-table th {{
+            background: #f8fafc;
+            color: #334155;
+            padding: 12px 14px;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 11.5px;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--border-color);
+            white-space: nowrap;
+        }}
+
+        .responsive-cutoff-table th.col-dept {{
+            text-align: left;
+            width: 45%;
+        }}
+
+        .responsive-cutoff-table td {{
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border-color);
+            color: #334155;
+            font-weight: 500;
+        }}
+
+        .responsive-cutoff-table tbody tr:hover {{
+            background: #f8fafc;
+        }}
+
+        .dept-title-cell {{
+            text-align: left;
+            font-weight: 700;
+            color: #1e293b;
+        }}
+
+        .oc-score-highlight {{
+            font-weight: 800;
+            color: var(--primary);
+            background-color: #eff6ff;
+            border-radius: 4px;
+            padding: 4px 8px;
+            display: inline-block;
+        }}
+
+        .score-pill {{
+            font-weight: 700;
+            color: #475569;
+        }}
+
+        .score-eligible {{
+            background-color: #dcfce7 !important;
+            color: #15803d !important;
+            border: 1px solid #86efac;
+            font-weight: 800;
+        }}
+
+        /* Empty State */
+        .empty-results-box {{
+            text-align: center;
+            padding: 60px 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--border-color);
+            margin: 20px 0;
+            color: var(--text-muted);
+            width: 100%;
+        }}
+
+        .empty-icon {{
+            font-size: 48px;
+            color: #cbd5e1;
+            margin-bottom: 16px;
+        }}
+
+        .empty-results-box h3 {{
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }}
+
+        /* ==========================================================================
+           9. TNEA SMART COUNSELOR CHATBOT WIDGET
+           ========================================================================== */
+        .counselor-chat-launcher {{
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 8500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }}
+
+        .counselor-launcher-btn {{
+            background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+            color: white;
+            border: none;
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.45);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }}
+
+        .counselor-launcher-btn:hover {{
+            transform: scale(1.08) translateY(-2px);
+            box-shadow: 0 12px 30px rgba(79, 70, 229, 0.6);
+        }}
+
+        .counselor-online-badge {{
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 14px;
+            height: 14px;
+            background: #10b981;
+            border: 2.5px solid #ffffff;
+            border-radius: 50%;
+        }}
+
+        .counselor-tooltip-bubble {{
+            background: #ffffff;
+            color: #0f172a;
+            padding: 8px 14px;
+            border-radius: var(--radius-full);
+            font-size: 13px;
+            font-weight: 700;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            animation: bounceIn 0.4s ease;
+            white-space: nowrap;
+        }}
+
+        @keyframes bounceIn {{
+            0% {{ opacity: 0; transform: scale(0.8) translateX(20px); }}
+            100% {{ opacity: 1; transform: scale(1) translateX(0); }}
+        }}
+
+        /* Chat Panel Container */
+        .counselor-chat-panel {{
+            position: fixed;
+            bottom: 92px;
+            right: 24px;
+            width: clamp(320px, 90vw, 420px);
+            height: clamp(450px, 75vh, 620px);
+            background: #ffffff;
+            border-radius: var(--radius-xl);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 9000;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideUpFade 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }}
+
+        .counselor-chat-panel.active {{
+            display: flex;
+        }}
+
+        @keyframes slideUpFade {{
+            from {{ opacity: 0; transform: translateY(20px) scale(0.95); }}
+            to {{ opacity: 1; transform: translateY(0) scale(1); }}
+        }}
+
+        .chat-panel-header {{
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+            color: white;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }}
+
+        .chat-header-title {{
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }}
+
+        .chat-bot-avatar {{
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #38bdf8, #818cf8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }}
+
+        .chat-header-info h4 {{
+            font-size: 15px;
+            font-weight: 800;
+            line-height: 1.2;
+        }}
+
+        .chat-header-info span {{
+            font-size: 11.5px;
+            color: #38bdf8;
+            font-weight: 600;
+        }}
+
+        .chat-header-actions {{
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }}
+
+        .chat-head-btn {{
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }}
+
+        .chat-head-btn:hover {{
+            background: rgba(255, 255, 255, 0.25);
+        }}
+
+        .chat-messages-scroll {{
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 16px;
+            background: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            -webkit-overflow-scrolling: touch;
+        }}
+
+        .chat-msg {{
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 13.5px;
+            line-height: 1.5;
+            word-break: break-word;
+        }}
+
+        .chat-msg-bot {{
+            align-self: flex-start;
+            background: #ffffff;
+            color: #1e293b;
+            border: 1px solid #e2e8f0;
+            border-bottom-left-radius: 4px;
+            box-shadow: var(--shadow-sm);
+        }}
+
+        .chat-msg-user {{
+            align-self: flex-end;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #ffffff;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+        }}
+
+        .chat-quick-suggestions {{
+            padding: 8px 12px;
+            background: #f1f5f9;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            white-space: nowrap;
+            scrollbar-width: none;
+        }}
+
+        .chat-quick-suggestions::-webkit-scrollbar {{
+            display: none;
+        }}
+
+        .chat-sug-chip {{
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            color: #0369a1;
+            padding: 6px 12px;
+            border-radius: var(--radius-full);
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            min-height: 32px;
+            display: inline-flex;
+            align-items: center;
+        }}
+
+        .chat-sug-chip:hover {{
+            background: #e0f2fe;
+            border-color: #38bdf8;
+        }}
+
+        .chat-input-bar {{
+            padding: 12px 16px;
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }}
+
+        .chat-input-ctrl {{
+            flex-grow: 1;
+            padding: 10px 14px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: var(--radius-md);
+            font-size: 13.5px;
+            outline: none;
+            resize: none;
+            max-height: 80px;
+            min-height: 42px;
+            line-height: 1.4;
+        }}
+
+        .chat-input-ctrl:focus {{
+            border-color: var(--primary);
+        }}
+
+        .chat-send-btn {{
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }}
+
+        .chat-send-btn:hover {{
+            background: var(--primary-dark);
+            transform: scale(1.05);
+        }}
+
+        /* ==========================================================================
+           10. MODALS (COMPARE, DOSSIER, LIGHTBOX, ABOUT)
+           ========================================================================== */
+        /* Base Modal Backdrop */
+        .dossier-modal, .lightbox-modal {{
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: clamp(8px, 2vw, 20px);
+            animation: fadeIn 0.25s ease;
+        }}
+
+        .dossier-modal.active, .lightbox-modal.active {{
+            display: flex;
+        }}
+
+        .dossier-dialog {{
+            background: #ffffff;
+            border-radius: var(--radius-xl);
+            width: 100%;
+            max-width: 960px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+            animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            -webkit-overflow-scrolling: touch;
+        }}
+
+        .modal-close-corner-btn {{
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            z-index: 10;
+            background: rgba(15, 23, 42, 0.70);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            backdrop-filter: blur(4px);
+            transition: all 0.2s;
+        }}
+
+        .modal-close-corner-btn:hover {{
+            background: var(--danger);
+            transform: scale(1.08);
+        }}
+
+        .modal-banner-header {{
+            position: relative;
+            min-height: 220px;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: flex-end;
+            padding: 24px;
+            color: white;
+            background-color: #1e293b;
+        }}
+
+        .modal-banner-header::after {{
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.25) 0%, rgba(15, 23, 42, 0.95) 100%);
+        }}
+
+        .modal-banner-content {{
+            position: relative;
+            z-index: 2;
+        }}
+
+        .modal-body-scroll {{
+            padding: clamp(16px, 3vw, 24px);
+        }}
+
+        /* Lightbox Image View */
+        .lightbox-wrapper {{
+            position: relative;
+            max-width: 90vw;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }}
+
+        .lightbox-img {{
+            max-width: 100%;
+            max-height: 80vh;
+            object-fit: contain;
+            border-radius: var(--radius-md);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+        }}
+
+        .lightbox-caption {{
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 700;
+            margin-top: 14px;
+            text-align: center;
+            background: rgba(15, 23, 42, 0.85);
+            padding: 8px 18px;
+            border-radius: var(--radius-full);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }}
+
+        .lightbox-close-btn {{
+            position: absolute;
+            top: -48px;
+            right: 0;
+            background: rgba(255, 255, 255, 0.25);
+            border: none;
+            color: white;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }}
+
+        .lightbox-close-btn:hover {{
+            background: var(--danger);
+            transform: scale(1.1);
+        }}
+
+        /* Comparison Table Matrix */
+        .compare-table {{
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13.5px;
+        }}
+
+        .compare-table th, .compare-table td {{
+            padding: 12px 14px;
+            border: 1px solid #e2e8f0;
+            text-align: left;
+        }}
+
+        .compare-table th {{
+            background: #f8fafc;
+            font-weight: 800;
+            color: #1e293b;
+            text-transform: uppercase;
+            font-size: 12px;
+        }}
+
+        .compare-table tr:nth-child(even) {{
+            background: #f8fafc;
+        }}
+
+        .compare-prop-name {{
+            font-weight: 700;
+            color: #475569;
+            width: 25%;
+            background: #f1f5f9 !important;
+        }}
+
+        /* ==========================================================================
+           11. TOAST NOTIFICATIONS & FLOATING CONTROLS
+           ========================================================================== */
+        .toast-container {{
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 999999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+            max-width: clamp(280px, 85vw, 380px);
+        }}
+
+        .toast-msg {{
+            background: rgba(15, 23, 42, 0.96);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 12px 18px;
+            border-radius: var(--radius-md);
+            font-size: 13.5px;
+            font-weight: 600;
+            box-shadow: var(--shadow-xl);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            pointer-events: auto;
+            animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }}
+
+        .toast-msg.success {{ border-left: 4px solid var(--success); }}
+        .toast-msg.error {{ border-left: 4px solid var(--danger); }}
+        .toast-msg.info {{ border-left: 4px solid var(--secondary); }}
+
+        @keyframes slideInRight {{
+            from {{ opacity: 0; transform: translateX(30px); }}
+            to {{ opacity: 1; transform: translateX(0); }}
+        }}
+
+        .back-to-top {{
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            width: var(--min-touch-target);
+            height: var(--min-touch-target);
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.20);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
+            z-index: 900;
+            backdrop-filter: blur(8px);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }}
+
+        .back-to-top.visible {{
+            opacity: 1;
+            visibility: visible;
+        }}
+
+        .back-to-top:hover {{
+            background: var(--primary);
+            transform: translateY(-3px);
+        }}
+
+        /* Footer */
+        .site-footer {{
+            margin-top: 60px;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 13px;
+            padding: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }}
+
+        .footer-links {{
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }}
+
+        .footer-links a, .footer-links button {{
+            color: #38bdf8;
+            text-decoration: none;
+            font-weight: 600;
+            background: none;
+            border: none;
+            font-size: 13px;
+            cursor: pointer;
+        }}
+
+        .footer-links a:hover, .footer-links button:hover {{
+            text-decoration: underline;
+        }}
+
+        @keyframes fadeIn {{
+            from {{ opacity: 0; }}
+            to {{ opacity: 1; }}
+        }}
+
+        @keyframes scaleUp {{
+            from {{ opacity: 0; transform: scale(0.95); }}
+            to {{ opacity: 1; transform: scale(1); }}
+        }}
+
+        /* ==========================================================================
+           12. RESPONSIVE BREAKPOINTS (Mobile, Tablet, Laptop, Desktop)
+           ========================================================================== */
+        /* Large Desktop / Ultrawide (>1440px) */
+        @media (min-width: 1441px) {{
+            .main-wrapper {{
+                max-width: 1400px;
+            }}
+        }}
+
+        /* Tablet Landscape & Laptops (1025px - 1200px) */
+        @media (max-width: 1200px) {{
+            .controls-top-row {{
+                grid-template-columns: 2fr 1fr 1fr;
+            }}
+            .reset-filter-btn {{
+                grid-column: span 3;
+            }}
+            .fee-inputs-grid {{
+                grid-template-columns: repeat(2, 1fr);
+            }}
+            .total-expense-card {{
+                grid-column: span 2;
+            }}
+        }}
+
+        /* Tablet Portrait (769px - 1024px) */
+        @media (max-width: 1024px) {{
+            .nav-links-desktop {{
+                display: none;
+            }}
+            .hamburger-btn {{
+                display: flex;
+            }}
+            .calc-controls-grid {{
+                grid-template-columns: 1fr 1fr;
+            }}
+            .calc-submit-btn, .calc-clear-btn {{
+                grid-column: span 1;
+            }}
+            .controls-top-row {{
+                grid-template-columns: 1fr 1fr;
+            }}
+            .reset-filter-btn {{
+                grid-column: span 2;
+            }}
+        }}
+
+        /* Mobile Screens (<= 768px) */
+        @media (max-width: 768px) {{
+            .main-wrapper {{
+                padding: 0 12px 40px 12px;
+            }}
+            .navbar {{
+                padding: 8px 14px;
+            }}
+            .brand-text h1 {{
+                font-size: 16px;
+            }}
+            .hero-section {{
+                padding: 24px 16px;
+            }}
+            .calc-controls-grid {{
+                grid-template-columns: 1fr;
+            }}
+            .controls-top-row {{
+                grid-template-columns: 1fr;
+            }}
+            .reset-filter-btn {{
+                grid-column: span 1;
+            }}
+            .card-hero {{
+                min-height: 200px;
+                padding: 16px;
+            }}
+            .card-body-content {{
+                padding: 16px;
+            }}
+            .metrics-row {{
+                grid-template-columns: 1fr;
+            }}
+            .fee-inputs-grid {{
+                grid-template-columns: 1fr;
+            }}
+            .total-expense-card {{
+                grid-column: span 1;
+            }}
+            .event-form-grid {{
+                grid-template-columns: 1fr;
+            }}
+            .event-form-full {{
+                grid-column: span 1;
+            }}
+            .events-cards-grid {{
+                grid-template-columns: 1fr;
+            }}
+            .counselor-chat-panel {{
+                right: 12px;
+                bottom: 84px;
+                width: calc(100vw - 24px);
+                height: 70vh;
+            }}
+        }}
+
+        /* Small Phones (<= 380px) */
+        @media (max-width: 380px) {{
+            .brand-text span {{
+                display: none;
+            }}
+            .hero-title {{
+                font-size: 22px;
+            }}
+            .badge-pill-group {{
+                gap: 4px;
+            }}
+            .tnea-badge, .category-badge, .change-photo-btn-label {{
+                font-size: 10px;
+                padding: 4px 10px;
+            }}
+            .counselor-tooltip-bubble {{
+                display: none;
+            }}
+        }}
+
+        /* Print Friendly Styles */
+        @media print {{
+            body {{
+                background: white !important;
+                color: black !important;
+            }}
+            .navbar-outer, .counselor-chat-launcher, .counselor-chat-panel, .back-to-top, .controls-wrapper, .calculator-banner, .toast-container, .card-top-actions {{
+                display: none !important;
+            }}
+            .college-card {{
+                box-shadow: none !important;
+                border: 1px solid #ccc !important;
+                page-break-inside: avoid;
+                margin-bottom: 20px;
+            }}
+        }}
+    </style>
+</head>
+<body>
+
+<div class="main-wrapper">
+    
+    <!-- ==========================================================================
+         NAVIGATION BAR
+         ========================================================================== -->
+    <header class="navbar-outer">
+        <nav class="navbar" role="navigation" aria-label="Main Navigation">
+            <a href="#" class="brand-logo" aria-label="TNEA College Explorer Home">
+                <div class="brand-icon-box">
+                    <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i>
+                </div>
+                <div class="brand-text">
+                    <h1>TNEA College Explorer</h1>
+                    <span>Smart Information Portal</span>
+                </div>
+            </a>
+
+            <!-- Central Live Sync Indicator -->
+            <div class="nav-center-actions">
+                <div class="sync-status-badge" id="syncBadge" onclick="loadData(false)" title="Click to refresh data from server" role="button" tabindex="0" aria-label="Server Sync Status">
+                    <span class="sync-dot" aria-hidden="true"></span>
+                    <span id="syncStatusText">Synchronized</span>
+                </div>
+            </div>
+
+            <!-- Desktop Nav Links -->
+            <ul class="nav-links-desktop">
+                <li><a href="#hero" class="nav-link"><i class="fa-solid fa-house" aria-hidden="true"></i> Home</a></li>
+                <li><a href="#collegeList" class="nav-link"><i class="fa-solid fa-building-columns" aria-hidden="true"></i> Colleges</a></li>
+                <li><a href="#cutoffCalcSection" class="nav-link"><i class="fa-solid fa-calculator" aria-hidden="true"></i> Cutoff Calc</a></li>
+                <li>
+                    <button type="button" onclick="openCompareModal()" class="nav-link" id="navCompareBtn">
+                        <i class="fa-solid fa-code-compare" aria-hidden="true"></i> Compare 
+                        <span class="nav-link-badge" id="compareNavBadge" style="display:none;">0</span>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" onclick="toggleFavoritesFilter()" class="nav-link" id="navFavBtn">
+                        <i class="fa-solid fa-star" aria-hidden="true" style="color: #f59e0b;"></i> Favorites
+                        <span class="nav-link-badge" id="favNavBadge" style="display:none;">0</span>
+                    </button>
+                </li>
+                <li><button type="button" onclick="openAboutModal()" class="nav-link nav-cta-btn"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Portal Info</button></li>
+            </ul>
+
+            <!-- Mobile Hamburger Toggle -->
+            <button class="hamburger-btn" id="mobileMenuBtn" aria-label="Toggle Navigation Menu" aria-expanded="false" aria-controls="mobileDrawer" onclick="toggleMobileMenu()">
+                <i class="fa-solid fa-bars" aria-hidden="true"></i>
+            </button>
+        </nav>
+
+        <!-- Mobile Drawer Menu -->
+        <div class="mobile-menu-drawer" id="mobileDrawer" aria-hidden="true">
+            <ul class="mobile-nav-list">
+                <li><a href="#hero" class="mobile-nav-link" onclick="closeMobileMenu()"><div class="mobile-nav-link-content"><i class="fa-solid fa-house"></i> Home</div></a></li>
+                <li><a href="#collegeList" class="mobile-nav-link" onclick="closeMobileMenu()"><div class="mobile-nav-link-content"><i class="fa-solid fa-building-columns"></i> Top 20 Colleges</div></a></li>
+                <li><a href="#cutoffCalcSection" class="mobile-nav-link" onclick="closeMobileMenu()"><div class="mobile-nav-link-content"><i class="fa-solid fa-calculator"></i> Cutoff Calculator</div></a></li>
+                <li>
+                    <button type="button" class="mobile-nav-link" onclick="closeMobileMenu(); openCompareModal();">
+                        <div class="mobile-nav-link-content"><i class="fa-solid fa-code-compare"></i> Compare Colleges</div>
+                        <span class="nav-link-badge" id="compareMobileBadge" style="display:none;">0</span>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="mobile-nav-link" onclick="closeMobileMenu(); toggleFavoritesFilter();">
+                        <div class="mobile-nav-link-content"><i class="fa-solid fa-star" style="color: #f59e0b;"></i> Favorite Colleges</div>
+                        <span class="nav-link-badge" id="favMobileBadge" style="display:none;">0</span>
+                    </button>
+                </li>
+                <li><button type="button" class="mobile-nav-link" onclick="toggleCounselorChat()"><div class="mobile-nav-link-content"><i class="fa-solid fa-headset" style="color:#38bdf8;"></i> AI Counselor Assistant</div></button></li>
+                <li><button type="button" class="mobile-nav-link" onclick="closeMobileMenu(); openAboutModal();"><div class="mobile-nav-link-content"><i class="fa-solid fa-circle-info"></i> Portal Info & Reset</div></button></li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- ==========================================================================
+         HERO SECTION & DYNAMIC STATISTICS DASHBOARD
+         ========================================================================== -->
+    <section class="hero-section" id="hero">
+        <div class="hero-content">
+            <div class="hero-tag">
+                <i class="fa-solid fa-bolt" aria-hidden="true"></i> Tamil Nadu Engineering Admissions 2026
+            </div>
+            <h2 class="hero-title">
+                Find Your Best <span class="gradient-text">Engineering College</span>
+            </h2>
+            <p class="hero-subtitle">
+                Explore premier TNEA engineering colleges, official community cutoffs, fee structures, hostel estimates, and campus events in one central, responsive portal.
+            </p>
+        </div>
+
+        <!-- Dynamic Live Statistics Dashboard -->
+        <div class="stats-dashboard">
+            <div class="dashboard-stat-card">
+                <div class="dash-stat-icon icon-blue">
+                    <i class="fa-solid fa-building-columns" aria-hidden="true"></i>
+                </div>
+                <div class="dash-stat-info">
+                    <h4 id="statCollegesCount">20</h4>
+                    <p>Premier Colleges</p>
+                </div>
+            </div>
+
+            <div class="dashboard-stat-card">
+                <div class="dash-stat-icon icon-purple">
+                    <i class="fa-solid fa-book-open" aria-hidden="true"></i>
+                </div>
+                <div class="dash-stat-info">
+                    <h4 id="statDepartmentsCount">18+</h4>
+                    <p>Engineering Depts</p>
+                </div>
+            </div>
+
+            <div class="dashboard-stat-card">
+                <div class="dash-stat-icon icon-emerald">
+                    <i class="fa-solid fa-calendar-check" aria-hidden="true"></i>
+                </div>
+                <div class="dash-stat-info">
+                    <h4 id="statEventsCount">35</h4>
+                    <p>Campus Events</p>
+                </div>
+            </div>
+
+            <div class="dashboard-stat-card">
+                <div class="dash-stat-icon icon-amber">
+                    <i class="fa-solid fa-trophy" aria-hidden="true"></i>
+                </div>
+                <div class="dash-stat-info">
+                    <h4 id="statHighestPackage">₹1.17 Cr</h4>
+                    <p>Highest Package</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==========================================================================
+         SMART CUTOFF ELIGIBILITY CALCULATOR WIDGET
+         ========================================================================== -->
+    <section class="calculator-banner" id="cutoffCalcSection">
+        <div class="calc-header">
+            <h3><i class="fa-solid fa-calculator" aria-hidden="true"></i> TNEA Cutoff Eligibility Finder</h3>
+            <span style="font-size: 12px; color: #cbd5e1; font-weight: 600;">Enter your 12th Cutoff (Out of 200)</span>
+        </div>
+        <div class="calc-controls-grid">
+            <div>
+                <input type="number" id="calcScoreInput" class="calc-input-box" placeholder="Your Cutoff Mark (e.g. 195.5)" min="0" max="200" step="0.25">
+            </div>
+            <div>
+                <select id="calcCommunitySelect" class="calc-input-box">
+                    <option value="OC">Community: OC (Open)</option>
+                    <option value="BC">Community: BC (Backward)</option>
+                    <option value="MBC">Community: MBC (Most Backward)</option>
+                    <option value="SC">Community: SC (Scheduled Caste)</option>
+                </select>
+            </div>
+            <button type="button" class="calc-submit-btn" onclick="applyCutoffCalculator()">
+                <i class="fa-solid fa-filter" aria-hidden="true"></i> Check Eligible Colleges
+            </button>
+            <button type="button" class="calc-clear-btn" onclick="clearCutoffCalculator()">
+                <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Clear
+            </button>
+        </div>
+    </section>
+
+    <!-- ==========================================================================
+         INTERACTIVE SEARCH, FILTERS & SORT CONTROLS
+         ========================================================================== -->
+    <section class="controls-wrapper" aria-label="Search and Filter Section">
+        <div class="controls-top-row">
+            <div class="search-box-container">
+                <i class="fa-solid fa-magnifying-glass search-icon" aria-hidden="true"></i>
+                <input type="text" id="searchInput" class="search-input" placeholder="Search college name, TNEA code (0001), branch, city..." oninput="filterColleges()" aria-label="Search Colleges">
+                <button type="button" class="search-clear-btn" id="searchClearBtn" onclick="clearSearchInput()" aria-label="Clear search input">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+            </div>
+
+            <div class="filter-group">
+                <select id="deptFilter" class="filter-select" onchange="filterColleges()" aria-label="Filter by Department">
+                    <option value="all">🎓 All Departments</option>
+                    <option value="CSE">💻 CSE (Computer Science)</option>
+                    <option value="ECE">📡 ECE (Electronics & Comm)</option>
+                    <option value="EEE">⚡ EEE (Electrical & Electronics)</option>
+                    <option value="IT">🌐 IT (Information Tech)</option>
+                    <option value="MECH">⚙️ MECH (Mechanical)</option>
+                    <option value="CIVIL">🏗️ CIVIL Engineering</option>
+                    <option value="AI&DS">🤖 AI & Data Science</option>
+                    <option value="BIOTECH">🧬 Biotech / Biomedical</option>
+                    <option value="CHEM">🧪 Chemical / Production</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <select id="locationFilter" class="filter-select" onchange="filterColleges()" aria-label="Filter by Location">
+                    <option value="all">📍 All Locations</option>
+                    <option value="Chennai">Chennai</option>
+                    <option value="Coimbatore">Coimbatore</option>
+                    <option value="Madurai">Madurai</option>
+                    <option value="Salem">Salem</option>
+                    <option value="Krishnagiri">Krishnagiri / Bargur</option>
+                    <option value="Tirunelveli">Tirunelveli</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <select id="sortFilter" class="filter-select" onchange="filterColleges()" aria-label="Sort Colleges By">
+                    <option value="code_asc">🔢 Sort: TNEA Code (Ascending)</option>
+                    <option value="package_desc">💼 Sort: Highest Placement (High &rarr; Low)</option>
+                    <option value="seats_desc">🎓 Sort: Total Seats (High &rarr; Low)</option>
+                    <option value="name_asc">🔤 Sort: College Name (A to Z)</option>
+                    <option value="fee_asc">💰 Sort: Tuition Fee (Low to High)</option>
+                </select>
+            </div>
+
+            <button type="button" class="reset-filter-btn" onclick="resetFilters()" aria-label="Reset all active filters">
+                <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i> Reset
+            </button>
+        </div>
+
+        <!-- Quick Branch Selector Chips -->
+        <div class="dept-chips-row" role="tablist" aria-label="Quick Department Filter Tabs">
+            <span class="chips-label"><i class="fa-solid fa-bolt" aria-hidden="true"></i> Quick Dept:</span>
+            <button type="button" class="dept-chip active" data-dept="all" onclick="selectDeptChip('all')" role="tab" aria-selected="true">All</button>
+            <button type="button" class="dept-chip" data-dept="CSE" onclick="selectDeptChip('CSE')" role="tab" aria-selected="false">CSE</button>
+            <button type="button" class="dept-chip" data-dept="AI&DS" onclick="selectDeptChip('AI&DS')" role="tab" aria-selected="false">AI & DS</button>
+            <button type="button" class="dept-chip" data-dept="IT" onclick="selectDeptChip('IT')" role="tab" aria-selected="false">IT</button>
+            <button type="button" class="dept-chip" data-dept="ECE" onclick="selectDeptChip('ECE')" role="tab" aria-selected="false">ECE</button>
+            <button type="button" class="dept-chip" data-dept="EEE" onclick="selectDeptChip('EEE')" role="tab" aria-selected="false">EEE</button>
+            <button type="button" class="dept-chip" data-dept="MECH" onclick="selectDeptChip('MECH')" role="tab" aria-selected="false">Mechanical</button>
+            <button type="button" class="dept-chip" data-dept="CIVIL" onclick="selectDeptChip('CIVIL')" role="tab" aria-selected="false">Civil</button>
+            <button type="button" class="dept-chip" data-dept="BIOTECH" onclick="selectDeptChip('BIOTECH')" role="tab" aria-selected="false">Biotech</button>
+            <button type="button" class="dept-chip" data-dept="CHEM" onclick="selectDeptChip('CHEM')" role="tab" aria-selected="false">Chemical</button>
+        </div>
+    </section>
+
+    <!-- Results Summary Bar -->
+    <div class="results-summary-bar" aria-live="polite">
+        <div>
+            Showing <span id="displayedCollegesCount">20</span> of <span id="totalCollegesCount">20</span> Colleges
+        </div>
+        <div class="results-count-badge" id="activeFilterBadge">
+            Showing All Results
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         DYNAMIC COLLEGE LIST CONTAINER
+         ========================================================================== -->
+    <main id="collegeList" class="college-list-grid" aria-label="College Listings"></main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <p><strong>TNEA College Explorer – Smart College Information Portal</strong></p>
+        <p>Tamil Nadu Engineering Admissions Comprehensive Guidance Engine</p>
+        <div class="footer-links">
+            <button type="button" onclick="openAboutModal()">Server & Sync Details</button>
+            <button type="button" onclick="openCompareModal()">Compare Colleges</button>
+            <button type="button" onclick="toggleFavoritesFilter()">Saved Favorites</button>
+            <button type="button" onclick="resetAllToDefault()">Reset Defaults</button>
+            <a href="#hero">Back to Top ↑</a>
+        </div>
+    </footer>
+</div>
+
+<!-- ==========================================================================
+     TNEA SMART COUNSELOR FLOATING CHATBOT WIDGET
+     ========================================================================== -->
+<div class="counselor-chat-launcher">
+    <div class="counselor-tooltip-bubble" id="counselorTooltip">
+        <span>👋 Need TNEA counseling advice?</span>
+    </div>
+    <button type="button" class="counselor-launcher-btn" id="counselorLaunchBtn" onclick="toggleCounselorChat()" aria-label="Open TNEA AI Counselor Assistant" aria-expanded="false" aria-controls="counselorChatPanel">
+        <i class="fa-solid fa-headset" aria-hidden="true"></i>
+        <span class="counselor-online-badge"></span>
+    </button>
+</div>
+
+<div class="counselor-chat-panel" id="counselorChatPanel" role="dialog" aria-labelledby="chatBotHeading" aria-hidden="true">
+    <div class="chat-panel-header">
+        <div class="chat-header-title">
+            <div class="chat-bot-avatar">
+                <i class="fa-solid fa-robot" aria-hidden="true"></i>
+            </div>
+            <div class="chat-header-info">
+                <h4 id="chatBotHeading">TNEA Counselor Assistant</h4>
+                <span>Smart Counseling & Cutoff AI</span>
+            </div>
+        </div>
+        <div class="chat-header-actions">
+            <button type="button" class="chat-head-btn" onclick="clearChatMessages()" title="Clear Chat History" aria-label="Clear chat messages">
+                <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="chat-head-btn" onclick="toggleCounselorChat()" title="Close Chat" aria-label="Close chat window">
+                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="chat-messages-scroll" id="chatMessagesBox">
+        <div class="chat-msg chat-msg-bot">
+            <strong>Hello! 👋 I am your TNEA Counseling Guide.</strong><br>
+            Ask me anything about cutoff marks, college comparisons (e.g. SSN vs PSG), fee structures, top CSE colleges, or hostel costs!
+        </div>
+    </div>
+
+    <!-- Quick Suggestion Chips -->
+    <div class="chat-quick-suggestions">
+        <button type="button" class="chat-sug-chip" onclick="sendQuickPrompt('Top CSE Colleges')">💻 Top CSE Colleges</button>
+        <button type="button" class="chat-sug-chip" onclick="sendQuickPrompt('SSN vs PSG Tech')">⚖️ SSN vs PSG</button>
+        <button type="button" class="chat-sug-chip" onclick="sendQuickPrompt('Cutoff for 195')">🎯 Cutoff 195 Colleges</button>
+        <button type="button" class="chat-sug-chip" onclick="sendQuickPrompt('Lowest Fee Colleges')">💰 Lowest Fee Colleges</button>
+        <button type="button" class="chat-sug-chip" onclick="sendQuickPrompt('Anna University Campuses')">🏛️ Anna Univ Campuses</button>
+    </div>
+
+    <div class="chat-input-bar">
+        <textarea id="chatInputCtrl" class="chat-input-ctrl" placeholder="Type your counseling query here..." rows="1" onkeydown="handleChatKeyDown(event)" aria-label="Chat input message"></textarea>
+        <button type="button" class="chat-send-btn" onclick="sendChatMessage()" aria-label="Send message">
+            <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+        </button>
+    </div>
+</div>
+
+<!-- ==========================================================================
+     IMAGE LIGHTBOX MODAL
+     ========================================================================== -->
+<div class="lightbox-modal" id="lightboxModal" role="dialog" aria-modal="true" aria-labelledby="lightboxCaption" onclick="closeLightbox(event)">
+    <div class="lightbox-wrapper">
+        <button type="button" class="lightbox-close-btn" onclick="closeLightboxDirect()" aria-label="Close enlarged image"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+        <img src="" id="lightboxImg" class="lightbox-img" alt="Enlarged Campus View">
+        <div class="lightbox-caption" id="lightboxCaption">Campus View</div>
+    </div>
+</div>
+
+<!-- ==========================================================================
+     COLLEGE DETAILS DOSSIER MODAL
+     ========================================================================== -->
+<div class="dossier-modal" id="dossierModal" role="dialog" aria-modal="true" aria-label="College Full Details" onclick="closeDossierOnBackdrop(event)">
+    <div class="dossier-dialog" id="dossierContent">
+        <!-- Injected via JavaScript -->
+    </div>
+</div>
+
+<!-- ==========================================================================
+     COLLEGE COMPARISON MODAL
+     ========================================================================== -->
+<div class="dossier-modal" id="compareModal" role="dialog" aria-modal="true" aria-label="College Comparison" onclick="closeCompareOnBackdrop(event)">
+    <div class="dossier-dialog" style="max-width: 1000px;">
+        <button type="button" class="modal-close-corner-btn" onclick="closeCompareModal()" aria-label="Close comparison dialog"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+        <div style="padding: clamp(16px, 3vw, 24px);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="brand-icon-box" style="width: 44px; height: 44px; font-size: 20px;">
+                        <i class="fa-solid fa-code-compare" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <h3 style="font-size: 19px; font-weight: 800; color: var(--text-main);">College Side-by-Side Comparison</h3>
+                        <p style="font-size: 12.5px; color: var(--text-muted);">Compare up to 3 institutions at once</p>
+                    </div>
+                </div>
+                <button type="button" class="reset-filter-btn" style="color: var(--danger); border-color: #fca5a5;" onclick="clearAllComparisons()">
+                    <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Clear Comparison
+                </button>
+            </div>
+            
+            <div class="table-scroll-container" id="compareMatrixBox">
+                <!-- Comparison matrix rendered by JS -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================================================
+     ABOUT & RESET PORTAL MODAL
+     ========================================================================== -->
+<div class="dossier-modal" id="aboutModal" role="dialog" aria-modal="true" aria-label="About Portal" onclick="closeAboutOnBackdrop(event)">
+    <div class="dossier-dialog" style="max-width: 620px;">
+        <button type="button" class="modal-close-corner-btn" onclick="closeAboutModal()" aria-label="Close about dialog"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+        <div style="padding: 32px 28px;">
+            <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 18px;">
+                <div class="brand-icon-box" style="width: 50px; height: 50px; font-size: 24px;">
+                    <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i>
+                </div>
+                <div>
+                    <h3 style="font-size: 20px; font-weight: 800; color: var(--text-main);">TNEA College Explorer</h3>
+                    <p style="font-size: 13px; color: var(--text-muted);">Enterprise Responsive Portal</p>
+                </div>
+            </div>
+            
+            <p style="font-size: 14px; line-height: 1.6; color: #475569; margin-bottom: 16px;">
+                Welcome to the modern TNEA College Explorer. This portal delivers complete insights into Tamil Nadu's top 20 engineering institutions, community-wise cutoffs (OC, BC, MBC, SC), interactive fee calculators, college comparison matrix, live photo uploads, and an integrated TNEA AI Counselor Assistant.
+            </p>
+
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+                <h4 style="font-size: 13px; font-weight: 800; color: #1e293b; margin-bottom: 8px;"><i class="fa-solid fa-server" aria-hidden="true"></i> Storage & Persistence Information</h4>
+                <ul style="font-size: 13px; color: #64748b; line-height: 1.7; padding-left: 18px;">
+                    <li><strong>Permanent Storage:</strong> Real image files + Server REST API (with offline localStorage safety fallback)</li>
+                    <li><strong>Zero-Quota Errors:</strong> Automatic image canvas compression prevents storage overflow</li>
+                    <li><strong>Multi-Device Sync:</strong> Live sync engine with cache-busting timestamping</li>
+                </ul>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
+                <button type="button" class="reset-filter-btn" style="color: var(--danger); border-color: #fca5a5;" onclick="resetAllToDefault()">
+                    <i class="fa-solid fa-trash-arrow-up" aria-hidden="true"></i> Reset All Defaults
+                </button>
+                <button type="button" class="btn-success" onclick="closeAboutModal()">
+                    <i class="fa-solid fa-check" aria-hidden="true"></i> Got It
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================================================
+     TOAST NOTIFICATIONS CONTAINER
+     ========================================================================== -->
+<div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+
+<!-- Back to Top Button -->
+<button type="button" class="back-to-top" id="backToTopBtn" onclick="scrollToTop()" title="Back to top" aria-label="Scroll back to top">
+    <i class="fa-solid fa-arrow-up" aria-hidden="true"></i>
+</button>
+
+<!-- ==========================================================================
+     JAVASCRIPT ENGINE & ROBUST DATASET
+     ========================================================================== -->
+<script>
+/**
+ * Canonical Embedded Dataset (Single Source of Truth)
+ * Full Top 20 TNEA Colleges with all cutoffs, branches, fees, events, and image paths
+ */
+const initialCollegesData = {json_data_str};
+
+/**
+ * Application State
+ */
+let collegesData = [];
+let comparisonList = [];
+let favoriteCollegeIds = [];
+let lastSyncTimestamp = 0;
+let isFavoritesOnlyFilter = false;
+let activeDeptFilter = 'all';
+let activeCutoffScore = null;
+let activeCutoffCommunity = 'OC';
+
+/**
+ * Storage Keys
+ */
+const STORAGE_DATA_KEY = "tnea_colleges_data_v2";
+const STORAGE_FAVS_KEY = "tnea_favorites";
+const STORAGE_COMPARE_KEY = "tnea_compare_list";
+
+/**
+ * 1. Data Initialization & Defensive Loading
+ */
+async function loadData(isBackgroundSync = false) {{
+    const syncBadge = document.getElementById('syncBadge');
+    const syncText = document.getElementById('syncStatusText');
+
+    if (!isBackgroundSync && syncBadge && syncText) {{
+        syncBadge.classList.add('syncing');
+        syncText.innerText = 'Connecting...';
+    }}
+
+    // Try fetching from Server REST API first
+    let loadedFromServer = false;
+    try {{
+        const timestamp = Date.now();
+        const response = await fetch(`/api/colleges?t=${{timestamp}}`, {{
+            headers: {{ 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }}
+        }});
+
+        if (response.ok) {{
+            const serverData = await response.json();
+            if (serverData && serverData.colleges && Array.isArray(serverData.colleges) && serverData.colleges.length > 0) {{
+                collegesData = serverData.colleges;
+                lastSyncTimestamp = serverData.timestamp || Date.now();
+                loadedFromServer = true;
+                if (syncBadge && syncText) {{
+                    syncBadge.classList.remove('syncing');
+                    syncText.innerText = 'Online / Synced';
+                }}
+            }}
+        }}
+    }} catch (e) {{
+        // Running offline or standalone file:/// mode
+    }}
+
+    // If server not reachable, read from localStorage or embedded initial dataset
+    if (!loadedFromServer) {{
+        try {{
+            const saved = localStorage.getItem(STORAGE_DATA_KEY);
+            if (saved) {{
+                const parsed = JSON.parse(saved);
+                if (Array.isArray(parsed) && parsed.length > 0) {{
+                    collegesData = parsed;
+                }} else {{
+                    collegesData = JSON.parse(JSON.stringify(initialCollegesData));
+                }}
+            }} else {{
+                collegesData = JSON.parse(JSON.stringify(initialCollegesData));
+            }}
+        }} catch (storageErr) {{
+            console.warn("Storage read failed, using embedded dataset:", storageErr);
+            collegesData = JSON.parse(JSON.stringify(initialCollegesData));
+        }}
+
+        if (syncBadge && syncText) {{
+            syncBadge.classList.remove('syncing');
+            syncText.innerText = 'Local Mode';
+        }}
+    }}
+
+    // Load Favorites
+    try {{
+        const favs = localStorage.getItem(STORAGE_FAVS_KEY);
+        favoriteCollegeIds = favs ? JSON.parse(favs) : [];
+        if (!Array.isArray(favoriteCollegeIds)) favoriteCollegeIds = [];
+    }} catch (e) {{
+        favoriteCollegeIds = [];
+    }}
+
+    // Load Comparison List
+    try {{
+        const comps = localStorage.getItem(STORAGE_COMPARE_KEY);
+        comparisonList = comps ? JSON.parse(comps) : [];
+        if (!Array.isArray(comparisonList)) comparisonList = [];
+    }} catch (e) {{
+        comparisonList = [];
+    }}
+
+    updateNavBadges();
+    filterColleges();
+}}
+
+/**
+ * 2. Save Data Safely to Server and Local Storage
+ */
+async function saveData() {{
+    // Save to Server REST API
+    try {{
+        await fetch('/api/colleges', {{
+            method: 'POST',
+            headers: {{ 'Content-Type': 'application/json' }},
+            body: JSON.stringify({{ colleges: collegesData }})
+        }});
+    }} catch (e) {{
+        // Server offline
+    }}
+
+    // Save to localStorage as defensive backup (with quota catching)
+    try {{
+        localStorage.setItem(STORAGE_DATA_KEY, JSON.stringify(collegesData));
+    }} catch (quotaErr) {{
+        console.warn("localStorage quota exceeded. Data preserved in runtime memory.");
+    }}
+}}
+
+/**
+ * 3. Cache-Busting Image URL Helper
+ */
+function getCacheBustedUrl(url) {{
+    if (!url) return 'images/ceg-anna-univ.jpg';
+    if (url.startsWith('data:') || url.startsWith('http://') || url.startsWith('https://')) return url;
+    const separator = url.includes('?') ? '&' : '?';
+    return `${{url}}${{separator}}t=${{lastSyncTimestamp || 1}}`;
+}}
+
+/**
+ * Handle Image Error gracefully
+ */
+function handleImageError(img) {{
+    img.onerror = null;
+    img.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="300" viewBox="0 0 600 300"><rect width="600" height="300" fill="%231e293b"/><text x="50%" y="50%" fill="%2394a3b8" font-family="sans-serif" font-size="20" font-weight="bold" text-anchor="middle" dominant-baseline="middle">Campus Image</text></svg>';
+}}
+
+/**
+ * 4. Image Compressor (Zero Quota Crash Guarantee)
+ */
+function compressAndFormatImage(file, maxWidth = 900, quality = 0.76, callback) {{
+    if (!file) return;
+
+    if (file.size > 20 * 1024 * 1024) {{
+        showToast("Image is larger than 20MB. Please select a smaller photo.", "error");
+        return;
+    }}
+
+    const reader = new FileReader();
+    reader.onload = function(e) {{
+        const img = new Image();
+        img.onload = function() {{
+            try {{
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+
+                if (width > maxWidth) {{
+                    height = Math.round((height * maxWidth) / width);
+                    width = maxWidth;
+                }}
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                const base64Url = canvas.toDataURL('image/jpeg', quality);
+                callback(base64Url);
+            }} catch (err) {{
+                callback(e.target.result);
+            }}
+        }};
+        img.onerror = function() {{
+            callback(e.target.result);
+        }};
+        img.src = e.target.result;
+    }};
+    reader.readAsDataURL(file);
+}}
+
+/**
+ * 5. Toast Notifications
+ */
+function showToast(message, type = 'success') {{
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+    
+    const toast = document.createElement('div');
+    toast.className = `toast-msg ${{type}}`;
+    
+    let icon = '<i class="fa-solid fa-circle-check" aria-hidden="true"></i>';
+    if (type === 'error') icon = '<i class="fa-solid fa-circle-xmark" aria-hidden="true"></i>';
+    if (type === 'info') icon = '<i class="fa-solid fa-circle-info" aria-hidden="true"></i>';
+
+    toast.innerHTML = `${{icon}} <span>${{escapeHtml(message)}}</span>`;
+    container.appendChild(toast);
+
+    setTimeout(() => {{
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(10px)';
+        toast.style.transition = 'all 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+    }}, 3200);
+}}
+
+/**
+ * 6. Dynamic Dashboard Stats
+ */
+function updateDashboardStats() {{
+    const countEl = document.getElementById('statCollegesCount');
+    if (countEl) countEl.innerText = collegesData.length;
+
+    const allDepts = new Set();
+    collegesData.forEach(c => {{
+        (c.departments || []).forEach(d => allDepts.add((d.name || '').split('(')[0].trim()));
+    }});
+    const deptEl = document.getElementById('statDepartmentsCount');
+    if (deptEl) deptEl.innerText = `${{allDepts.size}}+`;
+
+    let totalEvents = 0;
+    collegesData.forEach(c => {{
+        totalEvents += (c.events ? c.events.length : 0);
+    }});
+    const evEl = document.getElementById('statEventsCount');
+    if (evEl) evEl.innerText = totalEvents;
+}}
+
+/**
+ * 7. Render Colleges List
+ */
+function renderColleges(colleges, deptFilterQuery = '') {{
+    const listContainer = document.getElementById('collegeList');
+    if (!listContainer) return;
+    listContainer.innerHTML = '';
+
+    const dispCount = document.getElementById('displayedCollegesCount');
+    const totCount = document.getElementById('totalCollegesCount');
+    if (dispCount) dispCount.innerText = colleges.length;
+    if (totCount) totCount.innerText = collegesData.length;
+
+    if (colleges.length === 0) {{
+        listContainer.innerHTML = `
+            <div class="empty-results-box">
+                <div class="empty-icon"><i class="fa-solid fa-school-circle-xmark" aria-hidden="true"></i></div>
+                <h3>No Colleges Matching Your Criteria</h3>
+                <p>Try adjusting your search keywords, clearing department filters, or resetting cutoff criteria.</p>
+                <button type="button" class="reset-filter-btn" style="margin-top: 16px;" onclick="resetFilters()">
+                    <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i> Reset All Filters
+                </button>
+            </div>
+        `;
+        return;
+    }}
+
+    colleges.forEach(college => {{
+        const fees = college.fees || {{ tuition: 75000, other: 10000, hostel: 75000 }};
+        const tuition = Math.max(0, Number(fees.tuition) || 0);
+        const other = Math.max(0, Number(fees.other) || 0);
+        const hostel = Math.max(0, Number(fees.hostel) || 0);
+        const totalAnnual = tuition + other + hostel;
+
+        const isFav = favoriteCollegeIds.includes(college.id);
+        const isCompared = comparisonList.includes(college.id);
+
+        // Render Events
+        const eventsList = college.events || [];
+        let eventsHTML = '';
+        if (eventsList.length === 0) {{
+            eventsHTML = `
+                <div style="grid-column: 1 / -1; padding: 18px; text-align: center; color: #64748b; font-size: 13px; font-weight: 600; background: white; border-radius: 8px;">
+                    <i class="fa-regular fa-calendar-xmark" aria-hidden="true"></i> No campus events listed yet. Click "+ Add Event" to publish one!
+                </div>
+            `;
+        }} else {{
+            eventsHTML = eventsList.map((ev, index) => {{
+                const rawImg = ev.photo || ev.image || '';
+                const eventImg = getCacheBustedUrl(rawImg);
+                return `
+                    <div class="event-item-card" id="ev-card-${{college.id}}-${{ev.id}}">
+                        <div class="event-poster-container" onclick="openLightbox('${{eventImg || getCacheBustedUrl(college.image)}}', '${{escapeHtml(ev.title)}} - ${{escapeHtml(college.name)}}')" role="button" tabindex="0" aria-label="Enlarge event poster for ${{escapeHtml(ev.title)}}">
+                            ${{rawImg ? 
+                                `<img src="${{eventImg}}" class="event-poster-img" alt="${{escapeHtml(ev.title)}}" onerror="handleImageError(this)">` : 
+                                `<div class="event-poster-placeholder"><i class="fa-solid fa-image" aria-hidden="true"></i><span>No Photo - Click to Upload</span></div>`
+                            }}
+                            <div class="zoom-hint-overlay"><i class="fa-solid fa-expand" aria-hidden="true"></i></div>
+                        </div>
+                        
+                        <div class="event-content-body">
+                            <div>
+                                <div class="event-title-text">${{escapeHtml(ev.title)}}</div>
+                                ${{ev.date ? `<div class="event-meta-info"><i class="fa-regular fa-clock" aria-hidden="true"></i> ${{escapeHtml(ev.date)}}</div>` : ''}}
+                                ${{ev.venue ? `<div class="event-meta-info" style="color: #64748b;"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> ${{escapeHtml(ev.venue)}}</div>` : ''}}
+                                <div class="event-desc-text">${{escapeHtml(ev.desc)}}</div>
+                            </div>
+
+                            <div class="event-actions-bar">
+                                <label class="event-photo-upload-label" for="ev-photo-${{college.id}}-${{ev.id}}" title="Upload or Replace Photo" role="button" tabindex="0">
+                                    <i class="fa-solid fa-camera" aria-hidden="true"></i> ${{rawImg ? 'Change' : 'Upload'}}
+                                </label>
+                                <input type="file" id="ev-photo-${{college.id}}-${{ev.id}}" class="file-input-hidden" accept="image/*" onchange="uploadEventPhoto(event, '${{college.id}}', '${{ev.id}}')" aria-label="Upload photo for event ${{escapeHtml(ev.title)}}">
+
+                                <div class="event-action-icons">
+                                    <button type="button" class="icon-btn-action btn-edit-ev" onclick="openEditEventForm('${{college.id}}', '${{ev.id}}')" title="Edit Event Details" aria-label="Edit event ${{escapeHtml(ev.title)}}"><i class="fa-solid fa-pen" aria-hidden="true"></i></button>
+                                    <button type="button" class="icon-btn-action btn-del-ev" onclick="deleteEvent('${{college.id}}', '${{ev.id}}')" title="Delete Event" aria-label="Delete event ${{escapeHtml(ev.title)}}"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }}).join('');
+        }}
+
+        // Render Cutoffs
+        let displayDepartments = college.departments || [];
+        if (deptFilterQuery && deptFilterQuery !== 'all') {{
+            displayDepartments = displayDepartments.filter(d => 
+                (d.name || '').toLowerCase().includes(deptFilterQuery.toLowerCase())
+            );
+        }}
+
+        let deptRows = displayDepartments.map(d => {{
+            let ocClass = "oc-score-highlight";
+            let bcClass = "score-pill";
+            let mbcClass = "score-pill";
+            let scClass = "score-pill";
+
+            // If cutoff calculator active, highlight eligible branches
+            if (activeCutoffScore !== null) {{
+                const ocVal = parseFloat(d.OC) || 0;
+                const bcVal = parseFloat(d.BC) || 0;
+                const mbcVal = parseFloat(d.MBC) || 0;
+                const scVal = parseFloat(d.SC) || 0;
+
+                if (activeCutoffCommunity === 'OC' && activeCutoffScore >= ocVal) ocClass += " score-eligible";
+                if (activeCutoffCommunity === 'BC' && activeCutoffScore >= bcVal) bcClass += " score-eligible";
+                if (activeCutoffCommunity === 'MBC' && activeCutoffScore >= mbcVal) mbcClass += " score-eligible";
+                if (activeCutoffCommunity === 'SC' && activeCutoffScore >= scVal) scClass += " score-eligible";
+            }}
+
+            return `
+                <tr>
+                    <td class="dept-title-cell">${{escapeHtml(d.name)}}</td>
+                    <td><span class="${{ocClass}}">${{d.OC || '-'}}</span></td>
+                    <td><span class="${{bcClass}}">${{d.BC || '-'}}</span></td>
+                    <td><span class="${{mbcClass}}">${{d.MBC || '-'}}</span></td>
+                    <td><span class="${{scClass}}">${{d.SC || '-'}}</span></td>
+                </tr>
+            `;
+        }}).join('');
+
+        const collegeHeroImg = getCacheBustedUrl(college.image);
+
+        const cardHTML = `
+            <article class="college-card" id="card-${{college.id}}">
+                <!-- Hero Image Header with Permanent Upload Support -->
+                <div class="card-hero" id="hero-bg-${{college.id}}" style="background-image: url('${{collegeHeroImg}}');">
+                    <div class="card-hero-overlay"></div>
+                    
+                    <div class="card-top-actions">
+                        <div class="badge-pill-group">
+                            <span class="tnea-badge"><i class="fa-solid fa-id-badge" aria-hidden="true"></i> TNEA Code: ${{escapeHtml(college.code)}}</span>
+                            <span class="category-badge">${{escapeHtml(college.category || 'Autonomous')}}</span>
+                        </div>
+
+                        <div class="card-top-right-tools">
+                            <button type="button" class="favorite-toggle-btn ${{isFav ? 'favorited' : ''}}" onclick="toggleFavorite('${{college.id}}')" aria-label="${{isFav ? 'Remove from favorites' : 'Add to favorites'}}" title="${{isFav ? 'Favorited' : 'Add to Favorites'}}">
+                                <i class="${{isFav ? 'fa-solid' : 'fa-regular'}} fa-star" aria-hidden="true"></i>
+                            </button>
+
+                            <label class="change-photo-btn-label" for="upload-hero-${{college.id}}" title="Upload new campus photo" role="button" tabindex="0">
+                                <i class="fa-solid fa-camera" aria-hidden="true"></i> Change Photo
+                            </label>
+                            <input type="file" id="upload-hero-${{college.id}}" class="file-input-hidden" accept="image/*" onchange="uploadHeroImage(event, '${{college.id}}')" aria-label="Upload campus photo for ${{escapeHtml(college.name)}}">
+                        </div>
+                    </div>
+
+                    <div class="card-hero-details">
+                        <h3 class="college-heading-title">${{escapeHtml(college.name)}}</h3>
+                        <a href="https://maps.google.com/?q=${{encodeURIComponent(college.name + ' ' + college.location)}}" target="_blank" rel="noopener noreferrer" class="college-location-text" title="View location on Google Maps">
+                            <i class="fa-solid fa-location-dot" aria-hidden="true"></i> ${{escapeHtml(college.location)}}
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body-content">
+                    <!-- Key Metrics Row -->
+                    <div class="metrics-row">
+                        <div class="metric-box">
+                            <div class="metric-icon metric-seats"><i class="fa-solid fa-user-graduate" aria-hidden="true"></i></div>
+                            <div class="metric-info">
+                                <label>Total Seats</label>
+                                <span>${{escapeHtml(college.seats || '1000+')}}</span>
+                            </div>
+                        </div>
+
+                        <div class="metric-box">
+                            <div class="metric-icon metric-pkg"><i class="fa-solid fa-briefcase" aria-hidden="true"></i></div>
+                            <div class="metric-info">
+                                <label>Top Package</label>
+                                <span>${{escapeHtml(college.highestPackage || '₹20 LPA')}}</span>
+                            </div>
+                        </div>
+
+                        <div class="metric-actions-cell">
+                            <button type="button" class="compare-toggle-btn ${{isCompared ? 'active' : ''}}" onclick="toggleCompareCollege('${{college.id}}')">
+                                <i class="fa-solid fa-code-compare" aria-hidden="true"></i> ${{isCompared ? 'Comparing' : '+ Compare'}}
+                            </button>
+                            <button type="button" class="view-details-inline-btn" onclick="openCollegeModal('${{college.id}}')">
+                                <i class="fa-solid fa-circle-info" aria-hidden="true"></i> Full Details
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Fee Structure Estimator Section -->
+                    <section class="fees-section-box" aria-label="Fee Structure Estimator">
+                        <div class="section-subhead subhead-fee">
+                            <span><i class="fa-solid fa-calculator" aria-hidden="true"></i> Fee Structure & Hostel Estimator (Per Year)</span>
+                            <span style="font-size: 11px; font-weight: 700; color: #b45309;">Auto-Calculated</span>
+                        </div>
+
+                        <div class="fee-inputs-grid">
+                            <div class="fee-input-field">
+                                <label for="tuition-${{college.id}}">Annual Tuition Fees (₹)</label>
+                                <input type="number" id="tuition-${{college.id}}" class="fee-input-box" value="${{tuition}}" min="0" step="1000" placeholder="Tuition Fees" onchange="updateCollegeFee('${{college.id}}')">
+                            </div>
+
+                            <div class="fee-input-field">
+                                <label for="other-${{college.id}}">Other / Lab Fees (₹)</label>
+                                <input type="number" id="other-${{college.id}}" class="fee-input-box" value="${{other}}" min="0" step="500" placeholder="Other Fees" onchange="updateCollegeFee('${{college.id}}')">
+                            </div>
+
+                            <div class="fee-input-field">
+                                <label for="hostel-${{college.id}}">Hostel & Mess Cost (₹)</label>
+                                <input type="number" id="hostel-${{college.id}}" class="fee-input-box" value="${{hostel}}" min="0" step="1000" placeholder="Hostel & Mess" onchange="updateCollegeFee('${{college.id}}')">
+                            </div>
+
+                            <div class="total-expense-card">
+                                <label>Total Yearly Expense</label>
+                                <div class="total-value" id="total-val-${{college.id}}">₹${{totalAnnual.toLocaleString('en-IN')}}</div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- College Events & Event Photos Management -->
+                    <section class="events-section-box" aria-label="Campus Events">
+                        <div class="events-header-bar">
+                            <div class="section-subhead subhead-events" style="margin-bottom: 0;">
+                                <i class="fa-solid fa-calendar-star" aria-hidden="true"></i> College Events & Event Photos
+                            </div>
+                            <button type="button" class="add-event-action-btn" onclick="openAddEventForm('${{college.id}}')">
+                                <i class="fa-solid fa-plus" aria-hidden="true"></i> + Add Event
+                            </button>
+                        </div>
+
+                        <!-- Inline Event Form -->
+                        <div class="event-form-panel" id="ev-form-panel-${{college.id}}">
+                            <input type="hidden" id="ev-form-id-${{college.id}}">
+                            <div class="event-form-grid">
+                                <div class="event-form-full">
+                                    <label class="form-label" for="ev-form-title-${{college.id}}">Event Name *</label>
+                                    <input type="text" id="ev-form-title-${{college.id}}" class="form-ctrl" placeholder="e.g. National Robotics Symposium 2026">
+                                </div>
+                                <div>
+                                    <label class="form-label" for="ev-form-date-${{college.id}}">Event Date</label>
+                                    <input type="text" id="ev-form-date-${{college.id}}" class="form-ctrl" placeholder="e.g. Mar 15 - 17, 2026">
+                                </div>
+                                <div>
+                                    <label class="form-label" for="ev-form-venue-${{college.id}}">Event Venue / Location</label>
+                                    <input type="text" id="ev-form-venue-${{college.id}}" class="form-ctrl" placeholder="e.g. Main Auditorium">
+                                </div>
+                                <div class="event-form-full">
+                                    <label class="form-label" for="ev-form-desc-${{college.id}}">Event Description</label>
+                                    <textarea id="ev-form-desc-${{college.id}}" class="form-ctrl" rows="2" placeholder="Key highlights, competitions, workshops, chief guests..."></textarea>
+                                </div>
+                                <div class="event-form-full">
+                                    <label class="form-label" for="ev-form-file-${{college.id}}">📸 Upload Event Poster</label>
+                                    <input type="file" id="ev-form-file-${{college.id}}" class="form-ctrl" accept="image/*">
+                                </div>
+                            </div>
+
+                            <div class="form-btns-row">
+                                <button type="button" class="btn-secondary" onclick="closeEventForm('${{college.id}}')">Cancel</button>
+                                <button type="button" class="btn-success" onclick="saveEvent('${{college.id}}')"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Save Event</button>
+                            </div>
+                        </div>
+
+                        <!-- Event Cards Gallery -->
+                        <div class="events-cards-grid">
+                            ${{eventsHTML}}
+                        </div>
+                    </section>
+
+                    <!-- Department Cutoff Marks Section -->
+                    <section class="cutoffs-container-box" aria-label="Department Cutoff Marks">
+                        <div class="section-subhead subhead-cutoffs">
+                            <span><i class="fa-solid fa-table-list" aria-hidden="true"></i> Department Cutoff Marks (Community-Wise)</span>
+                            <span style="font-size: 11px; font-weight: 700; color: #64748b;">Official TNEA Marks</span>
+                        </div>
+
+                        <div class="table-scroll-container">
+                            <table class="responsive-cutoff-table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-dept">Department Branch</th>
+                                        <th>OC</th>
+                                        <th>BC</th>
+                                        <th>MBC</th>
+                                        <th>SC</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${{deptRows.length > 0 ? deptRows : `
+                                        <tr>
+                                            <td colspan="5" style="text-align: center; padding: 18px; color: #94a3b8;">
+                                                No specific cutoff entries found for the selected department filter.
+                                            </td>
+                                        </tr>
+                                    `}}
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+            </article>
+        `;
+        listContainer.innerHTML += cardHTML;
+    }});
+
+    updateDashboardStats();
+}}
+
+/**
+ * 8. Search, Filtering, Sorting & Cutoff Finder Engine
+ */
+function filterColleges() {{
+    const query = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
+    const clearBtn = document.getElementById('searchClearBtn');
+    if (clearBtn) clearBtn.classList.toggle('visible', query.length > 0);
+
+    const deptSelectVal = document.getElementById('deptFilter')?.value || 'all';
+    const locationVal = (document.getElementById('locationFilter')?.value || 'all').toLowerCase();
+    const sortVal = document.getElementById('sortFilter')?.value || 'code_asc';
+
+    const selectedDept = deptSelectVal !== 'all' ? deptSelectVal : (activeDeptFilter !== 'all' ? activeDeptFilter : 'all');
+
+    // Filter Logic
+    let filtered = collegesData.filter(college => {{
+        // Favorites filter
+        if (isFavoritesOnlyFilter && !favoriteCollegeIds.includes(college.id)) return false;
+
+        const name = (college.name || '').toLowerCase();
+        const code = (college.code || '').toLowerCase();
+        const loc = (college.location || '').toLowerCase();
+        const cat = (college.category || '').toLowerCase();
+        
+        // Multi-field text match
+        const nameMatch = name.includes(query);
+        const codeMatch = code.includes(query);
+        const locMatch = loc.includes(query);
+        const catMatch = cat.includes(query);
+        const deptTextMatch = (college.departments || []).some(d => (d.name || '').toLowerCase().includes(query));
+
+        // Location match
+        const locationDropdownMatch = (locationVal === 'all') || loc.includes(locationVal);
+
+        // Department match
+        const deptDropdownMatch = (selectedDept === 'all') || (college.departments || []).some(d => (d.name || '').toLowerCase().includes(selectedDept.toLowerCase()));
+
+        // Cutoff Calculator filter
+        let cutoffMatch = true;
+        if (activeCutoffScore !== null) {{
+            cutoffMatch = (college.departments || []).some(d => {{
+                const cutoffMark = parseFloat(d[activeCutoffCommunity]) || 0;
+                return activeCutoffScore >= cutoffMark;
+            }});
+        }}
+
+        return (nameMatch || codeMatch || locMatch || catMatch || deptTextMatch) && locationDropdownMatch && deptDropdownMatch && cutoffMatch;
+    }});
+
+    // Sorting Logic
+    filtered.sort((a, b) => {{
+        if (sortVal === 'code_asc') return (parseInt(a.code) || 0) - (parseInt(b.code) || 0);
+        if (sortVal === 'name_asc') return (a.name || '').localeCompare(b.name || '');
+        if (sortVal === 'package_desc') {{
+            const pkgA = parseFloat((a.highestPackage || '').replace(/[^0-9.]/g, '')) || 0;
+            const pkgB = parseFloat((b.highestPackage || '').replace(/[^0-9.]/g, '')) || 0;
+            return pkgB - pkgA;
+        }}
+        if (sortVal === 'seats_desc') {{
+            const seatA = parseInt((a.seats || '').replace(/[^0-9]/g, '')) || 0;
+            const seatB = parseInt((b.seats || '').replace(/[^0-9]/g, '')) || 0;
+            return seatB - seatA;
+        }}
+        if (sortVal === 'fee_asc') {{
+            const feeA = Number(a.fees?.tuition) || 0;
+            const feeB = Number(b.fees?.tuition) || 0;
+            return feeA - feeB;
+        }}
+        return 0;
+    }});
+
+    // Update active badge indicator
+    const badge = document.getElementById('activeFilterBadge');
+    if (badge) {{
+        let activeTags = [];
+        if (query) activeTags.push(`Search: "${{query}}"`);
+        if (selectedDept !== 'all') activeTags.push(`Dept: ${{selectedDept}}`);
+        if (locationVal !== 'all') activeTags.push(`Location`);
+        if (isFavoritesOnlyFilter) activeTags.push(`Favorites Only`);
+        if (activeCutoffScore !== null) activeTags.push(`Cutoff >= ${{activeCutoffScore}} (${{activeCutoffCommunity}})`);
+
+        if (activeTags.length > 0) {{
+            badge.innerHTML = `<i class="fa-solid fa-filter" aria-hidden="true"></i> ${{activeTags.join(' • ')}}`;
+        }} else {{
+            badge.innerHTML = `Showing All Results`;
+        }}
+    }}
+
+    renderColleges(filtered, selectedDept !== 'all' ? selectedDept : '');
+}}
+
+function selectDeptChip(deptCode) {{
+    activeDeptFilter = deptCode;
+    document.querySelectorAll('.dept-chip').forEach(chip => {{
+        const isMatch = chip.getAttribute('data-dept') === deptCode;
+        chip.classList.toggle('active', isMatch);
+        chip.setAttribute('aria-selected', isMatch ? 'true' : 'false');
+    }});
+
+    const deptSelect = document.getElementById('deptFilter');
+    if (deptSelect) {{
+        deptSelect.value = (deptCode === 'all') ? 'all' : deptCode;
+    }}
+
+    filterColleges();
+}}
+
+function clearSearchInput() {{
+    const input = document.getElementById('searchInput');
+    if (input) {{
+        input.value = '';
+        input.focus();
+    }}
+    filterColleges();
+}}
+
+function resetFilters() {{
+    const search = document.getElementById('searchInput');
+    const dept = document.getElementById('deptFilter');
+    const loc = document.getElementById('locationFilter');
+    const sort = document.getElementById('sortFilter');
+
+    if (search) search.value = '';
+    if (dept) dept.value = 'all';
+    if (loc) loc.value = 'all';
+    if (sort) sort.value = 'code_asc';
+
+    isFavoritesOnlyFilter = false;
+    activeCutoffScore = null;
+    selectDeptChip('all');
+    updateNavBadges();
+    filterColleges();
+    showToast("Filters reset to standard view.", "info");
+}}
+
+/**
+ * 9. Cutoff Calculator Actions
+ */
+function applyCutoffCalculator() {{
+    const val = parseFloat(document.getElementById('calcScoreInput')?.value);
+    const comm = document.getElementById('calcCommunitySelect')?.value || 'OC';
+
+    if (isNaN(val) || val < 0 || val > 200) {{
+        showToast("Please enter a valid cutoff score between 0 and 200.", "error");
+        return;
+    }}
+
+    activeCutoffScore = val;
+    activeCutoffCommunity = comm;
+    filterColleges();
+    showToast(`Highlighting colleges eligible for Cutoff ${{val}} (${{comm}})`, "success");
+}}
+
+function clearCutoffCalculator() {{
+    const scoreIn = document.getElementById('calcScoreInput');
+    if (scoreIn) scoreIn.value = '';
+    activeCutoffScore = null;
+    filterColleges();
+    showToast("Cutoff calculator filter cleared.", "info");
+}}
+
+/**
+ * 10. Favorites / Bookmarks Engine
+ */
+function toggleFavorite(collegeId) {{
+    const index = favoriteCollegeIds.indexOf(collegeId);
+    if (index > -1) {{
+        favoriteCollegeIds.splice(index, 1);
+        showToast("Removed from Favorites.", "info");
+    }} else {{
+        favoriteCollegeIds.push(collegeId);
+        showToast("Added to Favorites! ⭐", "success");
+    }}
+
+    try {{
+        localStorage.setItem(STORAGE_FAVS_KEY, JSON.stringify(favoriteCollegeIds));
+    }} catch (e) {{}}
+
+    updateNavBadges();
+    filterColleges();
+}}
+
+function toggleFavoritesFilter() {{
+    isFavoritesOnlyFilter = !isFavoritesOnlyFilter;
+    if (isFavoritesOnlyFilter && favoriteCollegeIds.length === 0) {{
+        showToast("You have not favorited any colleges yet. Click the star icon on any card!", "info");
+    }}
+    filterColleges();
+}}
+
+function updateNavBadges() {{
+    const favNavBadge = document.getElementById('favNavBadge');
+    const favMobileBadge = document.getElementById('favMobileBadge');
+    const compNavBadge = document.getElementById('compareNavBadge');
+    const compMobileBadge = document.getElementById('compareMobileBadge');
+
+    const favCount = favoriteCollegeIds.length;
+    if (favNavBadge) {{
+        favNavBadge.innerText = favCount;
+        favNavBadge.style.display = favCount > 0 ? 'inline-block' : 'none';
+    }}
+    if (favMobileBadge) {{
+        favMobileBadge.innerText = favCount;
+        favMobileBadge.style.display = favCount > 0 ? 'inline-block' : 'none';
+    }}
+
+    const compCount = comparisonList.length;
+    if (compNavBadge) {{
+        compNavBadge.innerText = compCount;
+        compNavBadge.style.display = compCount > 0 ? 'inline-block' : 'none';
+    }}
+    if (compMobileBadge) {{
+        compMobileBadge.innerText = compCount;
+        compMobileBadge.style.display = compCount > 0 ? 'inline-block' : 'none';
+    }}
+}}
+
+/**
+ * 11. Comparison Matrix Engine
+ */
+function toggleCompareCollege(collegeId) {{
+    const index = comparisonList.indexOf(collegeId);
+    if (index > -1) {{
+        comparisonList.splice(index, 1);
+        showToast("Removed from comparison tray.", "info");
+    }} else {{
+        if (comparisonList.length >= 3) {{
+            showToast("You can compare up to 3 colleges at a time.", "error");
+            return;
+        }}
+        comparisonList.push(collegeId);
+        showToast("Added to comparison tray! Click Compare in nav to view.", "success");
+    }}
+
+    try {{
+        localStorage.setItem(STORAGE_COMPARE_KEY, JSON.stringify(comparisonList));
+    }} catch (e) {{}}
+
+    updateNavBadges();
+    filterColleges();
+}}
+
+function openCompareModal() {{
+    if (comparisonList.length === 0) {{
+        showToast("No colleges selected for comparison. Click '+ Compare' on any 2 or 3 colleges!", "info");
+        return;
+    }}
+
+    const matrixBox = document.getElementById('compareMatrixBox');
+    if (!matrixBox) return;
+
+    const collegesToCompare = collegesData.filter(c => comparisonList.includes(c.id));
+
+    let headersHTML = `<th>Features / Metrics</th>`;
+    collegesToCompare.forEach(c => {{
+        headersHTML += `
+            <th style="min-width: 220px;">
+                <div style="font-size: 15px; font-weight: 800; color: #4f46e5;">${{escapeHtml(c.name)}}</div>
+                <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Code: ${{escapeHtml(c.code)}}</div>
+                <button type="button" class="reset-filter-btn" style="padding: 4px 10px; font-size: 11px; margin-top: 6px;" onclick="toggleCompareCollege('${{c.id}}'); openCompareModal();">
+                    <i class="fa-solid fa-xmark"></i> Remove
+                </button>
+            </th>
+        `;
+    }});
+
+    const buildRow = (label, accessor) => {{
+        let rowHTML = `<tr><td class="compare-prop-name">${{label}}</td>`;
+        collegesToCompare.forEach(c => {{
+            rowHTML += `<td>${{accessor(c)}}</td>`;
+        }});
+        rowHTML += `</tr>`;
+        return rowHTML;
+    }};
+
+    matrixBox.innerHTML = `
+        <table class="compare-table">
+            <thead><tr>${{headersHTML}}</tr></thead>
+            <tbody>
+                ${{buildRow('Location', c => `<i class="fa-solid fa-location-dot" style="color:#0ea5e9;"></i> ${{escapeHtml(c.location)}}`)}}
+                ${{buildRow('Institution Category', c => `<span class="category-badge" style="background:#1e293b; color:white;">${{escapeHtml(c.category)}}</span>`)}}
+                ${{buildRow('Total Seats', c => `<strong>${{escapeHtml(c.seats)}}</strong>`)}}
+                ${{buildRow('Highest Package', c => `<span style="color:#16a34a; font-weight:800;">${{escapeHtml(c.highestPackage)}}</span>`)}}
+                ${{buildRow('Annual Tuition Fees', c => `₹${{(Number(c.fees?.tuition) || 0).toLocaleString('en-IN')}}`)}}
+                ${{buildRow('Hostel & Mess Cost', c => `₹${{(Number(c.fees?.hostel) || 0).toLocaleString('en-IN')}}`)}}
+                ${{buildRow('Total Yearly Est.', c => `<strong>₹${{((Number(c.fees?.tuition) || 0) + (Number(c.fees?.other) || 0) + (Number(c.fees?.hostel) || 0)).toLocaleString('en-IN')}}</strong>`)}}
+                ${{buildRow('Top CSE OC Cutoff', c => {{
+                    const cse = (c.departments || []).find(d => (d.name || '').includes('CSE') || (d.name || '').includes('Computer'));
+                    return cse ? `<span class="oc-score-highlight">${{cse.OC}}</span>` : 'N/A';
+                }})}}
+                ${{buildRow('Campus Events', c => `${{(c.events || []).length}} Active Events`)}}
+            </tbody>
+        </table>
+    `;
+
+    document.getElementById('compareModal')?.classList.add('active');
+    document.body.classList.add('modal-open');
+}}
+
+function closeCompareModal() {{
+    document.getElementById('compareModal')?.classList.remove('active');
+    document.body.classList.remove('modal-open');
+}}
+
+function closeCompareOnBackdrop(e) {{
+    if (e.target.id === 'compareModal') closeCompareModal();
+}}
+
+function clearAllComparisons() {{
+    comparisonList = [];
+    try {{ localStorage.removeItem(STORAGE_COMPARE_KEY); }} catch (e) {{}}
+    updateNavBadges();
+    closeCompareModal();
+    filterColleges();
+    showToast("Comparison tray cleared.", "info");
+}}
+
+/**
+ * 12. Upload Hero Campus Photo
+ */
+async function uploadHeroImage(event, collegeId) {{
+    const file = event.target.files[0];
+    if (!file) return;
+
+    showToast("Processing and saving image...", "info");
+
+    compressAndFormatImage(file, 900, 0.76, async (base64Url) => {{
+        const college = collegesData.find(c => c.id === collegeId);
+        if (!college) return;
+
+        // Try server upload first
+        try {{
+            const res = await fetch('/api/upload', {{
+                method: 'POST',
+                headers: {{ 'Content-Type': 'application/json' }},
+                body: JSON.stringify({{ collegeId, targetType: 'college', imageData: base64Url }})
+            }});
+            const result = await res.json();
+            if (result.success && result.imagePath) {{
+                college.image = result.imagePath;
+                lastSyncTimestamp = Date.now();
+                saveData();
+                filterColleges();
+                showToast("📸 Campus photo saved permanently!", "success");
+                return;
+            }}
+        }} catch (e) {{
+            // Server offline, fallback to base64
+        }}
+
+        college.image = base64Url;
+        saveData();
+        filterColleges();
+        showToast("📸 Campus photo updated locally!", "success");
+    }});
+}}
+
+/**
+ * 13. Upload Event Photo
+ */
+async function uploadEventPhoto(event, collegeId, eventId) {{
+    const file = event.target.files[0];
+    if (!file) return;
+
+    showToast("Saving event poster...", "info");
+
+    compressAndFormatImage(file, 800, 0.75, async (base64Url) => {{
+        const college = collegesData.find(c => c.id === collegeId);
+        if (!college || !college.events) return;
+        const ev = college.events.find(e => e.id === eventId);
+        if (!ev) return;
+
+        try {{
+            const res = await fetch('/api/upload', {{
+                method: 'POST',
+                headers: {{ 'Content-Type': 'application/json' }},
+                body: JSON.stringify({{ collegeId, eventId, targetType: 'event', imageData: base64Url }})
+            }});
+            const result = await res.json();
+            if (result.success && result.imagePath) {{
+                ev.photo = result.imagePath;
+                ev.image = result.imagePath;
+                lastSyncTimestamp = Date.now();
+                saveData();
+                filterColleges();
+                showToast("📸 Event photo saved permanently!", "success");
+                return;
+            }}
+        }} catch (e) {{}}
+
+        ev.photo = base64Url;
+        ev.image = base64Url;
+        saveData();
+        filterColleges();
+        showToast("📸 Event photo updated locally!", "success");
+    }});
+}}
+
+/**
+ * 14. Update College Fees (Zero-NaN & Canonical State)
+ */
+async function updateCollegeFee(collegeId) {{
+    const tuitionIn = document.getElementById(`tuition-${{collegeId}}`);
+    const otherIn = document.getElementById(`other-${{collegeId}}`);
+    const hostelIn = document.getElementById(`hostel-${{collegeId}}`);
+
+    const tuitionVal = Math.max(0, parseFloat(tuitionIn ? tuitionIn.value : 0) || 0);
+    const otherVal = Math.max(0, parseFloat(otherIn ? otherIn.value : 0) || 0);
+    const hostelVal = Math.max(0, parseFloat(hostelIn ? hostelIn.value : 0) || 0);
+
+    const totalAnnual = tuitionVal + otherVal + hostelVal;
+    const totalEl = document.getElementById(`total-val-${{collegeId}}`);
+    if (totalEl) totalEl.innerText = `₹${{totalAnnual.toLocaleString('en-IN')}}`;
+
+    const college = collegesData.find(c => c.id === collegeId);
+    if (!college) return;
+
+    college.fees = {{
+        tuition: tuitionVal,
+        other: otherVal,
+        hostel: hostelVal
+    }};
+
+    saveData();
+    showToast("Fee updates saved!", "success");
+}}
+
+/**
+ * 15. Add, Edit, Delete Events
+ */
+function openAddEventForm(collegeId) {{
+    const panel = document.getElementById(`ev-form-panel-${{collegeId}}`);
+    if (!panel) return;
+    panel.classList.add('active');
+    
+    document.getElementById(`ev-form-id-${{collegeId}}`).value = '';
+    document.getElementById(`ev-form-title-${{collegeId}}`).value = '';
+    document.getElementById(`ev-form-date-${{collegeId}}`).value = '';
+    document.getElementById(`ev-form-venue-${{collegeId}}`).value = '';
+    document.getElementById(`ev-form-desc-${{collegeId}}`).value = '';
+    document.getElementById(`ev-form-file-${{collegeId}}`).value = '';
+    
+    document.getElementById(`ev-form-title-${{collegeId}}`).focus();
+}}
+
+function openEditEventForm(collegeId, eventId) {{
+    const college = collegesData.find(c => c.id === collegeId);
+    if (!college) return;
+
+    const ev = (college.events || []).find(e => e.id === eventId);
+    if (!ev) return;
+
+    const panel = document.getElementById(`ev-form-panel-${{collegeId}}`);
+    if (!panel) return;
+    panel.classList.add('active');
+
+    document.getElementById(`ev-form-id-${{collegeId}}`).value = ev.id;
+    document.getElementById(`ev-form-title-${{collegeId}}`).value = ev.title;
+    document.getElementById(`ev-form-date-${{collegeId}}`).value = ev.date || '';
+    document.getElementById(`ev-form-venue-${{collegeId}}`).value = ev.venue || '';
+    document.getElementById(`ev-form-desc-${{collegeId}}`).value = ev.desc || '';
+    document.getElementById(`ev-form-file-${{collegeId}}`).value = '';
+
+    document.getElementById(`ev-form-title-${{collegeId}}`).focus();
+}}
+
+function closeEventForm(collegeId) {{
+    document.getElementById(`ev-form-panel-${{collegeId}}`)?.classList.remove('active');
+}}
+
+async function saveEvent(collegeId) {{
+    const eventId = document.getElementById(`ev-form-id-${{collegeId}}`).value;
+    const title = document.getElementById(`ev-form-title-${{collegeId}}`).value.trim();
+    const date = document.getElementById(`ev-form-date-${{collegeId}}`).value.trim();
+    const venue = document.getElementById(`ev-form-venue-${{collegeId}}`).value.trim();
+    const desc = document.getElementById(`ev-form-desc-${{collegeId}}`).value.trim();
+    const fileInput = document.getElementById(`ev-form-file-${{collegeId}}`);
+
+    if (!title) {{
+        showToast("Please enter the Event Name.", "error");
+        return;
+    }}
+
+    const college = collegesData.find(c => c.id === collegeId);
+    if (!college) return;
+    if (!college.events) college.events = [];
+
+    const onComplete = (photoUrl) => {{
+        if (eventId) {{
+            const ev = college.events.find(e => e.id === eventId);
+            if (ev) {{
+                ev.title = title;
+                ev.date = date;
+                ev.venue = venue;
+                ev.desc = desc || "Annual campus symposium.";
+                if (photoUrl) {{
+                    ev.photo = photoUrl;
+                    ev.image = photoUrl;
+                }}
+            }}
+            showToast(`Event "${{title}}" updated!`, "success");
+        }} else {{
+            college.events.unshift({{
+                id: 'ev-' + Date.now(),
+                title: title,
+                date: date,
+                venue: venue,
+                desc: desc || "Annual campus symposium.",
+                photo: photoUrl || "",
+                image: photoUrl || ""
+            }});
+            showToast(`Event "${{title}}" published!`, "success");
+        }}
+
+        saveData();
+        closeEventForm(collegeId);
+        filterColleges();
+    }};
+
+    if (fileInput.files && fileInput.files[0]) {{
+        compressAndFormatImage(fileInput.files[0], 800, 0.75, onComplete);
+    }} else {{
+        onComplete(null);
+    }}
+}}
+
+function deleteEvent(collegeId, eventId) {{
+    const college = collegesData.find(c => c.id === collegeId);
+    if (!college || !college.events) return;
+
+    const ev = college.events.find(e => e.id === eventId);
+    const evTitle = ev ? ev.title : "this event";
+
+    if (confirm(`Are you sure you want to delete "${{evTitle}}"?`)) {{
+        college.events = college.events.filter(e => e.id !== eventId);
+        saveData();
+        showToast("Event deleted.", "info");
+        filterColleges();
+    }}
+}}
+
+/**
+ * 16. Lightbox & Full Dossier Modals
+ */
+function openLightbox(imgSrc, caption) {{
+    if (!imgSrc) return;
+    const modal = document.getElementById('lightboxModal');
+    const img = document.getElementById('lightboxImg');
+    const cap = document.getElementById('lightboxCaption');
+
+    if (img) img.src = imgSrc;
+    if (cap) cap.innerText = caption || "Campus View";
+    if (modal) modal.classList.add('active');
+    document.body.classList.add('modal-open');
+}}
+
+function closeLightboxDirect() {{
+    document.getElementById('lightboxModal')?.classList.remove('active');
+    document.body.classList.remove('modal-open');
+}}
+
+function closeLightbox(e) {{
+    if (e.target.id === 'lightboxModal') closeLightboxDirect();
+}}
+
+function openCollegeModal(collegeId) {{
+    const college = collegesData.find(c => c.id === collegeId);
+    if (!college) return;
+
+    const fees = college.fees || {{ tuition: 75000, other: 10000, hostel: 75000 }};
+    const tuition = Math.max(0, Number(fees.tuition) || 0);
+    const other = Math.max(0, Number(fees.other) || 0);
+    const hostel = Math.max(0, Number(fees.hostel) || 0);
+    const total = tuition + other + hostel;
+
+    const dialog = document.getElementById('dossierContent');
+    const heroBg = getCacheBustedUrl(college.image);
+
+    dialog.innerHTML = `
+        <button type="button" class="modal-close-corner-btn" onclick="closeDossierModal()" aria-label="Close details modal"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+        
+        <div class="modal-banner-header" style="background-image: url('${{heroBg}}');">
+            <div class="modal-banner-content">
+                <div class="badge-pill-group" style="margin-bottom: 8px;">
+                    <span class="tnea-badge"><i class="fa-solid fa-id-badge" aria-hidden="true"></i> Code: ${{escapeHtml(college.code)}}</span>
+                    <span class="category-badge">${{escapeHtml(college.category || 'Autonomous')}}</span>
+                </div>
+                <h2 style="font-size: clamp(20px, 3vw, 26px); font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.6);">${{escapeHtml(college.name)}}</h2>
+                <div style="font-size: 13.5px; color: #38bdf8; font-weight: 600; margin-top: 4px;">
+                    <i class="fa-solid fa-location-dot" aria-hidden="true"></i> ${{escapeHtml(college.location)}}
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-body-scroll">
+            <div class="metrics-row" style="margin-bottom: 20px;">
+                <div class="metric-box">
+                    <div class="metric-icon metric-seats"><i class="fa-solid fa-user-graduate" aria-hidden="true"></i></div>
+                    <div class="metric-info">
+                        <label>Total Seats</label>
+                        <span>${{escapeHtml(college.seats || '1000+')}}</span>
+                    </div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-icon metric-pkg"><i class="fa-solid fa-briefcase" aria-hidden="true"></i></div>
+                    <div class="metric-info">
+                        <label>Top Package</label>
+                        <span>${{escapeHtml(college.highestPackage || '₹20 LPA')}}</span>
+                    </div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-icon" style="background: #fef3c7; color: #b45309;"><i class="fa-solid fa-coins" aria-hidden="true"></i></div>
+                    <div class="metric-info">
+                        <label>Annual Est.</label>
+                        <span>₹${{total.toLocaleString('en-IN')}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 24px;">
+                <h4 style="font-size: 15px; font-weight: 800; color: #0c4a6e; margin-bottom: 12px;">
+                    <i class="fa-solid fa-calendar-star" aria-hidden="true"></i> Campus Events & Symposiums (${{(college.events || []).length}})
+                </h4>
+                <div class="events-cards-grid">
+                    ${{(college.events || []).map(ev => {{
+                        const rawImg = ev.photo || ev.image || '';
+                        const evImg = getCacheBustedUrl(rawImg);
+                        return `
+                            <div class="event-item-card">
+                                ${{rawImg ? `<img src="${{evImg}}" class="event-poster-img" style="height: 120px;" alt="${{escapeHtml(ev.title)}}" onclick="openLightbox('${{evImg}}', '${{escapeHtml(ev.title)}}')" onerror="handleImageError(this)">` : ''}}
+                                <div style="padding: 12px;">
+                                    <div style="font-size: 14px; font-weight: 800; color: #0369a1;">${{escapeHtml(ev.title)}}</div>
+                                    ${{ev.date ? `<div style="font-size: 11px; color: #64748b; margin-top: 2px;"><i class="fa-regular fa-clock" aria-hidden="true"></i> ${{escapeHtml(ev.date)}}</div>` : ''}}
+                                    <p style="font-size: 12px; color: #475569; margin-top: 6px;">${{escapeHtml(ev.desc)}}</p>
+                                </div>
+                            </div>
+                        `;
+                    }}).join('')}}
+                </div>
+            </div>
+
+            <div>
+                <h4 style="font-size: 15px; font-weight: 800; color: #1e293b; margin-bottom: 12px;">
+                    <i class="fa-solid fa-table-list" aria-hidden="true"></i> Complete Department Cutoff Table
+                </h4>
+                <div class="table-scroll-container">
+                    <table class="responsive-cutoff-table">
+                        <thead>
+                            <tr>
+                                <th class="col-dept">Department</th>
+                                <th>OC</th>
+                                <th>BC</th>
+                                <th>MBC</th>
+                                <th>SC</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${{(college.departments || []).map(d => `
+                                <tr>
+                                    <td class="dept-title-cell">${{escapeHtml(d.name)}}</td>
+                                    <td><span class="oc-score-highlight">${{d.OC || '-'}}</span></td>
+                                    <td><span class="score-pill">${{d.BC || '-'}}</span></td>
+                                    <td><span class="score-pill">${{d.MBC || '-'}}</span></td>
+                                    <td><span class="score-pill">${{d.SC || '-'}}</span></td>
+                                </tr>
+                            `).join('')}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('dossierModal')?.classList.add('active');
+    document.body.classList.add('modal-open');
+}}
+
+function closeDossierModal() {{
+    document.getElementById('dossierModal')?.classList.remove('active');
+    document.body.classList.remove('modal-open');
+}}
+
+function closeDossierOnBackdrop(e) {{
+    if (e.target.id === 'dossierModal') closeDossierModal();
+}}
+
+function openAboutModal() {{
+    document.getElementById('aboutModal')?.classList.add('active');
+    document.body.classList.add('modal-open');
+}}
+
+function closeAboutModal() {{
+    document.getElementById('aboutModal')?.classList.remove('active');
+    document.body.classList.remove('modal-open');
+}}
+
+function closeAboutOnBackdrop(e) {{
+    if (e.target.id === 'aboutModal') closeAboutModal();
+}}
+
+async function resetAllToDefault() {{
+    if (confirm("Reset all customizations (uploaded photos, custom events, modified fees) back to factory defaults?")) {{
+        try {{
+            await fetch('/api/reset', {{ method: 'POST' }});
+        }} catch (e) {{}}
+
+        try {{
+            localStorage.removeItem(STORAGE_DATA_KEY);
+            localStorage.removeItem(STORAGE_FAVS_KEY);
+            localStorage.removeItem(STORAGE_COMPARE_KEY);
+        }} catch (e) {{}}
+
+        collegesData = JSON.parse(JSON.stringify(initialCollegesData));
+        favoriteCollegeIds = [];
+        comparisonList = [];
+        updateNavBadges();
+        filterColleges();
+        closeAboutModal();
+        showToast("All data restored to factory defaults!", "info");
+    }}
+}}
+
+/**
+ * 17. TNEA Smart Counselor Chatbot Knowledge Engine
+ */
+function toggleCounselorChat() {{
+    const panel = document.getElementById('counselorChatPanel');
+    const btn = document.getElementById('counselorLaunchBtn');
+    const tooltip = document.getElementById('counselorTooltip');
+
+    if (!panel) return;
+    const isOpen = panel.classList.toggle('active');
+    if (btn) btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    if (panel) panel.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+    if (tooltip) tooltip.style.display = 'none';
+
+    if (isOpen) {{
+        document.getElementById('chatInputCtrl')?.focus();
+    }}
+}}
+
+function handleChatKeyDown(e) {{
+    if (e.key === 'Enter' && !e.shiftKey) {{
+        e.preventDefault();
+        sendChatMessage();
+    }}
+}}
+
+function sendQuickPrompt(promptText) {{
+    const input = document.getElementById('chatInputCtrl');
+    if (input) input.value = promptText;
+    sendChatMessage();
+}}
+
+function sendChatMessage() {{
+    const input = document.getElementById('chatInputCtrl');
+    const text = (input ? input.value : '').trim();
+    if (!text) return;
+
+    appendChatMessage(text, 'user');
+    input.value = '';
+
+    // Generate intelligent counseling response
+    setTimeout(() => {{
+        const response = generateCounselorResponse(text);
+        appendChatMessage(response, 'bot');
+    }}, 450);
+}}
+
+function appendChatMessage(htmlContent, sender) {{
+    const box = document.getElementById('chatMessagesBox');
+    if (!box) return;
+
+    const msg = document.createElement('div');
+    msg.className = `chat-msg chat-msg-${{sender}}`;
+    msg.innerHTML = htmlContent;
+    box.appendChild(msg);
+    box.scrollTop = box.scrollHeight;
+}}
+
+function clearChatMessages() {{
+    const box = document.getElementById('chatMessagesBox');
+    if (box) {{
+        box.innerHTML = `
+            <div class="chat-msg chat-msg-bot">
+                Chat history cleared. How can I help with your TNEA 2026 admissions?
+            </div>
+        `;
+    }}
+}}
+
+function generateCounselorResponse(query) {{
+    const q = query.toLowerCase();
+
+    if (q.includes('cse') || q.includes('computer')) {{
+        return "<strong>Top 5 Colleges for CSE in Tamil Nadu:</strong><br>" +
+               "1. <strong>CEG Anna University</strong> (Code 0001) - OC Cutoff: 199.5<br>" +
+               "2. <strong>MIT Chromepet</strong> (Code 0004) - OC Cutoff: 199.0<br>" +
+               "3. <strong>PSG Tech Coimbatore</strong> (Code 2006) - OC Cutoff: 199.0<br>" +
+               "4. <strong>SSN College of Engg</strong> (Code 1315) - OC Cutoff: 198.5<br>" +
+               "5. <strong>CIT Coimbatore</strong> (Code 2007) - OC Cutoff: 197.0";
+    }}
+
+    if (q.includes('ssn vs psg') || (q.includes('ssn') && q.includes('psg'))) {{
+        return "<strong>SSN vs PSG Tech Comparison:</strong><br>" +
+               "• <strong>Placements:</strong> SSN boasts a ₹1.17 Cr international top package; PSG Tech averages ₹12.5 LPA with ₹48 LPA top.<br>" +
+               "• <strong>Reputation:</strong> PSG Tech is one of India's oldest premier institutions; SSN has world-class research infrastructure and Shiv Nadar backing.<br>" +
+               "• <strong>Fees:</strong> PSG Tech Govt-Aided is ~₹85k/yr vs SSN at ~₹1.2L/yr.";
+    }}
+
+    if (q.includes('cutoff for 195') || q.includes('195')) {{
+        return "<strong>With a 195.0 Cutoff, you have strong admission chances in:</strong><br>" +
+               "• <strong>ECE/EEE</strong> at CEG & MIT Anna University<br>" +
+               "• <strong>AI & DS / IT / ECE</strong> at PSG Tech & SSN<br>" +
+               "• <strong>CSE</strong> at CIT Coimbatore (197.0), GCT (196.5), TCE Madurai (196.0), and PSG iTech (195.5).";
+    }}
+
+    if (q.includes('fee') || q.includes('cost') || q.includes('lowest')) {{
+        return "<strong>TNEA Fee Structure Overview:</strong><br>" +
+               "• <strong>Govt Colleges (GCT, GCE Salem, Bargur, Tirunelveli):</strong> ~₹30,000 to ₹35,000/year (Lowest)<br>" +
+               "• <strong>Anna University (CEG, MIT, ACTECH):</strong> ~₹50,000 to ₹55,000/year<br>" +
+               "• <strong>Govt-Aided (PSG Tech, CIT, TCE):</strong> ~₹60,000 to ₹85,000/year<br>" +
+               "• <strong>Top Autonomous Private (SSN, KCT, SKCET, CIT Chennai):</strong> ~₹85,000 to ₹1,20,000/year.";
+    }}
+
+    if (q.includes('anna university') || q.includes('ceg') || q.includes('mit')) {{
+        return "<strong>Anna University 4 Main Campuses in Chennai:</strong><br>" +
+               "1. <strong>CEG Guindy</strong> (0001) - Flagship engineering campus<br>" +
+               "2. <strong>MIT Chromepet</strong> (0004) - Renowned for Aeronautical, Automobile & Robotics<br>" +
+               "3. <strong>ACTECH Guindy</strong> (0002) - Premier Chemical, Biotech & Food Tech hub<br>" +
+               "4. <strong>SAP Campus</strong> - Architecture & Planning.";
+    }}
+
+    if (q.includes('hostel')) {{
+        return "<strong>Hostel & Mess Costs:</strong><br>" +
+               "• Govt/University Hostels: ₹50,000 – ₹75,000/year.<br>" +
+               "• Autonomous Private Hostels: ₹85,000 – ₹1,20,000/year (AC & non-AC available with Wi-Fi).";
+    }}
+
+    return "For TNEA 2026 admissions, choice filling order should strictly prioritize institutional NIRF/placement prestige (CEG > MIT > PSG Tech > SSN > CIT > GCT > TCE) before branch selection. Use our <strong>Cutoff Eligibility Finder</strong> above to check exact branch eligibility!";
+}}
+
+/**
+ * 18. Mobile Menu & Navigation Toggles
+ */
+function toggleMobileMenu() {{
+    const drawer = document.getElementById('mobileDrawer');
+    const btn = document.getElementById('mobileMenuBtn');
+    if (!drawer) return;
+
+    const isOpen = drawer.classList.toggle('open');
+    if (btn) btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    drawer.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+}}
+
+function closeMobileMenu() {{
+    const drawer = document.getElementById('mobileDrawer');
+    const btn = document.getElementById('mobileMenuBtn');
+    if (drawer) drawer.classList.remove('open');
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+}}
+
+function scrollToTop() {{
+    window.scrollTo({{ top: 0, behavior: 'smooth' }});
+}}
+
+window.addEventListener('scroll', () => {{
+    const btn = document.getElementById('backToTopBtn');
+    if (!btn) return;
+    if (window.scrollY > 350) {{
+        btn.classList.add('visible');
+    }} else {{
+        btn.classList.remove('visible');
+    }}
+}});
+
+document.addEventListener('keydown', (e) => {{
+    if (e.key === 'Escape') {{
+        closeLightboxDirect();
+        closeDossierModal();
+        closeCompareModal();
+        closeAboutModal();
+    }}
+}});
+
+// Background Periodic Sync
+setInterval(() => {{
+    loadData(true);
+}}, 10000);
+
+document.addEventListener('visibilitychange', () => {{
+    if (!document.hidden) {{
+        loadData(true);
+    }}
+}});
+
+// HTML Entity Escaper for Safe Text Rendering (XSS Prevention)
+function escapeHtml(str) {{
+    if (!str && str !== 0) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}}
+
+/**
+ * Fallback for Font Awesome detection
+ */
+window.addEventListener('load', () => {{
+    const span = document.createElement('span');
+    span.className = 'fa';
+    span.style.display = 'none';
+    document.body.appendChild(span);
+    setTimeout(() => {{
+        if (span.offsetWidth === 0 && span.offsetHeight === 0) {{
+            // Font Awesome loaded or using SVG
+        }}
+        span.remove();
+    }}, 1000);
+}});
+
+/* ==========================================================================
+   INITIALIZATION
+   ========================================================================== */
+loadData(false);
+</script>
+
+</body>
+</html>
+'''
+
+with open(target_file, "w", encoding="utf-8") as f:
+    f.write(html_template)
+
+print(f"SUCCESS: Created standalone final file at {target_file}")

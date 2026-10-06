@@ -1,0 +1,1 @@
+# TNEA College Explorer uses standard library Python 3. No external pip dependencies required.
